@@ -1,0 +1,64 @@
+# AI
+## Basics
+- Probelm -> Machine learning
+    - Data classification -> classify data
+        - supervised training, use known data and classes 
+            - Fisher’s Iris Dataset	
+    - Regression analysis -> number
+        - ex: given car info -> mpg
+    - Clustering -> group data
+        - unsupervised training
+        - no provision for new data to group
+    - Timer series
+        - ex: predicting stocks based on previous days of stock prices
+- **Translating inputs as a vector**
+    - Important to normalize values within a range
+        - large range is best, avoid too much extreme ends data
+    - XOR
+        - [0.0, 0.0] -> [0.0] //false xor false = false
+        - [1.0, 0.0] -> [1.0] //true xor false = true
+    - Stocks
+        - array of % changed [0.04, 0.02, -0.16] -> 0.02
+- Evaluate success -> scoring function
+- Online training: learns after eahc set element
+- Batch training: learns after X amount of elements 
+- Supervised training: provide expected outputs
+- Unsupervised training: don't provide expected outputs
+- hybrid training: some outputs provided
+- Deterministic training: train same given a state
+- stochastic training: train differently due to randomness
+## Normalizing
+- Qualitative data: qualities/descriptions
+- Quantative data: quantities/numbers
+- Data categories
+    - Nominal, Ordinal (qualitative)
+    - Interval, Ratio (quantitative)
+- **Nominal Normalizing**
+    - One-of-n encoding (one hot encoders)
+        - [#, #, #, nominal (category)] 
+            - ex: 0 0 1, 0 1 0, 1 0 0  [3 categories represented]
+                - could use -1 insetad of 0
+    - equilateral encoding
+- **Ordinal Noramalizing**
+    - ex: 
+    - preschool (0),..., second grade(3), ..., senior (13)
+    - % = grade value / total grades 
+    - **Normalize between range**: -1 to 1
+        - width = (high - low) 
+        - lowerbound + (width * %) 
+        - ex: second grade with -1 to 1 range
+            - second grade -> 3 / 14 -> (3/14) * (1 - (- 1)) + -1
+    - **Denormalize normalized ranged value**
+        - ( denomralized val - lowerbound / width ) * total categories
+- **Quantitative Normalizing**
+    - Normalizing
+        - data range = dataHigh - dataLow
+        - normalize range = normalHigh - normalLow
+        - data% = (value - data low) / data range
+        - normalized value = (data% * normalize range) + normalLow
+    - Denormalize
+        - ((normalized value  - normalLow) / normalize range) * datarange + dataLow
+- Recirprocal normalize: -1 - 1 range, 1 / x
+- Equilateral 
+    - https://www.heatonresearch.com/2017/02/10/equilateral.html 
+- 

@@ -28,15 +28,7 @@ public class AutomatonBasedSearch extends Matcher {
 		public void addEdge(char transitionCh, State destination) {
 			edges.put(transitionCh, destination);
 		}
-		
-		public String getName() {
-			return name;
-		}
-		
-		public boolean isFinal() {
-			return isFinal;
-		}
-		
+				
 		public State transition(char transition) {
 			return edges.get(transition);
 		}
@@ -46,7 +38,7 @@ public class AutomatonBasedSearch extends Matcher {
 		}
 		
 		public String toString() {
-			return name + " is final: " + isFinal();
+			return name + " is final: " + isFinal;
 		}
 		
 	}
@@ -88,7 +80,7 @@ public class AutomatonBasedSearch extends Matcher {
 			//set up edges now
 			for (State state : states) {
 				for (char letter : alphabet) {
-					String nextName = state.getName() + letter;
+					String nextName = state.name + letter;
 					State transitionState = contains(nextName);
 					if (transitionState != null) {
 						state.addEdge(letter, transitionState);
@@ -118,11 +110,7 @@ public class AutomatonBasedSearch extends Matcher {
 			}
 			
 			State state = states.get(name.length());	
-			if (state.getName().equals(name)) {
-				return state;
-			} else {
-				return null;
-			}
+			return state.name.equals(name) ? state : null;
 		}
 		
 		private State getEmptyState() {
@@ -137,7 +125,7 @@ public class AutomatonBasedSearch extends Matcher {
 		}
 			
 		public boolean isMatching() {
-			return current.isFinal();
+			return current.isFinal;
 		}
 	}
 

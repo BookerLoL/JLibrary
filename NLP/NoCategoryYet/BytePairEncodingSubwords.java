@@ -24,44 +24,25 @@ Autocompletion algorithms present a ranked list of k predicted tokens rather tha
 beam search algorithm
  */
 public class BytePairEncodingSubwords {
-	private static Map<String, Integer> getBasicTestVocab() {
-		Map<String, Integer> dict = new HashMap<>();
-		dict.put("l o w </w>", 5);
-		dict.put("l o w e r </w>", 2);
-		dict.put("n e w e s t </w>", 6);
-		dict.put("w i d e s t </w>", 3);
-		return dict;
-	}
-
 	private static Map<Collection<String>, Integer> getPairFreq(Map<String, Integer> dictionary) {
-		Map<Collection<String>, Integer> pairsFreqs = new HashMap<>();
+		Map<Collection<String>, Integer> pairFreqs = new HashMap<>();
 		for (Entry<String, Integer> wordFreq : dictionary.entrySet()) {
 			String[] subwords = wordFreq.getKey().split(" ");
 			int freq = wordFreq.getValue();
 			for (int index = 0; index < subwords.length - 1; index++) {
 				List<String> pairOfSubwords = Arrays.asList(subwords[index], subwords[index + 1]);
-				if (pairsFreqs.containsKey(pairOfSubwords)) {
-					pairsFreqs.put(pairOfSubwords, pairsFreqs.get(pairOfSubwords) + freq);
-				} else {
-					pairsFreqs.put(pairOfSubwords, freq);
-				}
+				pairFreqs.compute(pairOfSubwords, (k, v) -> v != null ? v + freq : freq);
 			}
 		}
-		return pairsFreqs;
+		return pairFreqs;
 	}
 
 	private static Collection<String> getMax(Map<Collection<String>, Integer> pairFreqs) {
 		if (pairFreqs.isEmpty()) {
 			return null;
 		}
-
-		Entry<Collection<String>, Integer> maxFreqPair = null;
-		for (Entry<Collection<String>, Integer> pair : pairFreqs.entrySet()) {
-			if (maxFreqPair == null || pair.getValue() > maxFreqPair.getValue()) {
-				maxFreqPair = pair;
-			}
-		}
-		return maxFreqPair.getKey();
+		
+		return Collections.max(pairFreqs.entrySet(), (e1, e2) -> e1.getValue().compareTo(e2.getValue())).getKey();
 	}
 
 	private static Map<String, Integer> merge(Collection<String> replacementPair, Map<String, Integer> dict) {
@@ -69,12 +50,7 @@ public class BytePairEncodingSubwords {
 		String[] replacementPairInfo = replacementPair.toArray(new String[2]);
 		String replacementPattern = replacementPairInfo[0] + " " + replacementPairInfo[1];
 		String replacementSubword = replacementPairInfo[0] + replacementPairInfo[1];
-		for (Entry<String, Integer> dictWord : dict.entrySet()) {
-			String word = dictWord.getKey();
-
-			String replacedWord = word.replaceAll(replacementPattern, replacementSubword);
-			updatedDict.put(replacedWord, dictWord.getValue());
-		}
+		dict.entrySet().forEach(entry -> updatedDict.put(entry.getKey().replaceAll(replacementPattern, replacementSubword), entry.getValue()));
 		return updatedDict;
 	}
 
@@ -83,7 +59,6 @@ public class BytePairEncodingSubwords {
 			Map<Collection<String>, Integer> pairings = getPairFreq(dict);
 			Collection<String> bestPair = getMax(pairings);
 			if (bestPair == null) {
-				System.out.println("here");
 				break;
 			}
 			dict = merge(bestPair, dict);
@@ -94,11 +69,7 @@ public class BytePairEncodingSubwords {
 
 	private static Map<String, Integer> decode(Map<String, Integer> dict) {
 		Map<String, Integer> decodedDict = new HashMap<>(dict.size());
-		for (Entry<String, Integer> dictWord : dict.entrySet()) {
-			String word = dictWord.getKey();
-			String noSpaceWord = word.replaceAll(" ", "");
-			decodedDict.put(noSpaceWord, dictWord.getValue());
-		}
+		dict.entrySet().forEach(entry -> decodedDict.put(entry.getKey().replaceAll(" ", ""), entry.getValue()));
 		return decodedDict;
 	}
 
@@ -109,5 +80,14 @@ public class BytePairEncodingSubwords {
 		System.out.println(dict);
 		dict = decode(dict);
 		System.out.println(dict);
+	}
+
+	private static Map<String, Integer> getBasicTestVocab() {
+		Map<String, Integer> dict = new HashMap<>();
+		dict.put("l o w </w>", 5);
+		dict.put("l o w e r </w>", 2);
+		dict.put("n e w e s t </w>", 6);
+		dict.put("w i d e s t </w>", 3);
+		return dict;
 	}
 }

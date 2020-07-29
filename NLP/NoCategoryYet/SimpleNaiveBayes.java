@@ -26,7 +26,6 @@ public class SimpleNaiveBayes {
 		}
 	}
 
-	// Not needed to do this but decided to make it quick
 	private Map<Integer, Document> documents;
 	private Set<String> classifications;
 	private Set<String> vocab;
@@ -37,10 +36,6 @@ public class SimpleNaiveBayes {
 		vocab = new HashSet<>();
 	}
 
-	public Document createDocument(int docID, String classification) {
-		return new Document(docID, classification);
-	}
-
 	public void addDocument(int docID, String classification) {
 		Document doc = new Document(docID, classification);
 		documents.computeIfAbsent(doc.docID, k -> doc);
@@ -48,13 +43,13 @@ public class SimpleNaiveBayes {
 	}
 
 	public void addWordToDocument(int docID, List<String> words) {
-		Document doc = documents.get(docID);
-		if (doc != null) {
+		documents.computeIfPresent(docID, (k, v) -> {
 			words.forEach(word -> {
-				doc.addWord(word);
+				v.addWord(word);
 				vocab.add(word);
 			});
-		}
+			return v;
+		});
 	}
 
 	public void addWordToDocuement(int docID, String[] words) {
@@ -62,40 +57,31 @@ public class SimpleNaiveBayes {
 	}
 
 	public void addWordToDocument(int docID, String word) {
-		Document doc = documents.get(docID);
-		if (doc != null) {
-			doc.addWord(word);
+		documents.computeIfPresent(docID, (k, v) -> {
+			v.addWord(word);
 			vocab.add(word);
-		}
+			return v;
+		});
 	}
 
 	public String testClassify(List<String> words) {
-		int totalClasses = classifications.size();
-
 		String bestClassification = "";
-		double highestProbability = Integer.MIN_VALUE;
+		double highestProbability = Integer.MIN_VALUE, probability = 1.0;
+		long totalWordCountForClassification = 0, wordCount = 0;
 
 		for (String classification : classifications) {
-			List<Document> associatedClassDocs = documents.values().stream()
-					.filter(doc -> doc.classification.equals(classification)).collect(Collectors.toList());
-			double prior = associatedClassDocs.size() / (double) totalClasses; // P(c)
+			List<Document> associatedClassDocs = documents.values().stream().filter(doc -> doc.classification.equals(classification)).collect(Collectors.toList());
 
-			int totalWordCountForClassification = 0; // Count(c)
-			for (Document doc : associatedClassDocs) {
-				totalWordCountForClassification += doc.totalWords;
-			}
-
-			double probability = 1.0;
-			int wordCount = 0; // count(w, c)
-			for (String word : words) {
-				wordCount = 0;
-				for (Document doc : associatedClassDocs) {
-					wordCount += doc.wordCounts.getOrDefault(word, 0);
-				}
-				probability *= ((wordCount + 1) / (totalWordCountForClassification + vocab.size())); // P(Word, Class)
-			}
+			totalWordCountForClassification = associatedClassDocs.stream().mapToLong(doc -> doc.totalWords).sum();
 			
-			probability *= prior; 
+			probability = 1.0;
+			for (String word : words) {
+				wordCount = associatedClassDocs.stream().mapToLong(doc -> doc.wordCounts.getOrDefault(word, 0)).sum();
+				probability *= ((wordCount + 1) / ((double) totalWordCountForClassification + vocab.size())); 
+			}
+
+			double prior = associatedClassDocs.size() / (double) documents.size(); 
+			probability *= prior;
 
 			if (probability > highestProbability) {
 				highestProbability = probability;
@@ -104,5 +90,18 @@ public class SimpleNaiveBayes {
 		}
 
 		return bestClassification;
+	}
+
+	public static void main(String[] args) {
+		SimpleNaiveBayes snb = new SimpleNaiveBayes();
+		snb.addDocument(0, "c");
+		snb.addDocument(1, "c");
+		snb.addDocument(2, "c");
+		snb.addDocument(3, "j");
+		snb.addWordToDocuement(0, new String[] { "Chinese", "Beijing", "Chinese" });
+		snb.addWordToDocuement(1, new String[] { "Chinese", "Chinese", "Shanghai" });
+		snb.addWordToDocuement(2, new String[] { "Chinese", "Macao" });
+		snb.addWordToDocuement(3, new String[] { "Tokyo", "Japan", "Chinese" });
+		System.out.println(snb.testClassify(Arrays.asList("Chinese", "Chinese", "Chinese", "Tokyo", "Japan")));
 	}
 }
