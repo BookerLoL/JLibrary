@@ -61,4 +61,4 @@
 - Recirprocal normalize: -1 - 1 range, 1 / x
 - Equilateral 
     - https://www.heatonresearch.com/2017/02/10/equilateral.html 
-- 
+- Min-Max normalization more common than Gaussian normalization

@@ -226,19 +226,4 @@ public class Deap<T extends Comparable<? super T>> {
 	public String toString() {
 		return "Size: " + size + ", " + Arrays.toString(heap);
 	}
-
-	public static void main(String[] args) {
-		test();
-	}
-
-	private static void test() {
-		Deap<Integer> deap = new Deap<>(20);
-		Integer[] nums = { 3, 20, 7, 5, 18, 16, 9, 15, 11, 12, 10 };
-		Arrays.asList(nums).forEach(num -> deap.insert(num));
-		while (!deap.isEmpty()) {
-			System.out.println(deap.removeMax());
-			//System.out.println(deap.removeMin());
-		}
-	}
-
 }
