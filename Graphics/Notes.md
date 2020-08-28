@@ -2,89 +2,75 @@
 -Create 3d imagary, create 2d images of world 
 - Rate of images displayed (FPS / Hz)
 - Graphics Rendering Pipeline
-- <a href="https://www.codecogs.com/eqnedit.php?latex=S&space;\cdot&space;C" target="_blank"><img src="https://latex.codecogs.com/gif.latex?S&space;\cdot&space;C" title="S \cdot C" /></a>
 
 ## Math
 - x member of [X, Y) == X <= x < Y
-- (n k) = n! / k!(n-k)!
-    - binomial coefficeint and factor
+- Special symbols
+    - <img src="https://latex.codecogs.com/gif.latex?x^{&plus;}&space;=&space;\begin{cases}&space;1,&&space;\text{&space;if&space;}&space;x&space;>&space;0,&space;\\&space;0,&&space;otherwise.&space;\end{cases}" title="x^{+} = \begin{cases} 1,& \text{ if } x > 0, \\ 0,& otherwise. \end{cases}" />
+    -<img src="https://latex.codecogs.com/gif.latex?x^{\overline{&plus;}}&space;=&space;\begin{cases}&space;1,&&space;\text{&space;if&space;}&space;x&space;\geq&space;1,&space;\\&space;x,&&space;\text{&space;if&space;}&space;0&space;<&space;x&space;<&space;1,&space;\\&space;0,&&space;otherwise.&space;\end{cases}" title="x^{\overline{+}} = \begin{cases} 1,& \text{ if } x \geq 1, \\ x,& \text{ if } 0 < x < 1, \\ 0,& otherwise. \end{cases}" />
+
+- Binomials
+    - <img src="https://latex.codecogs.com/gif.latex?\binom{n}{k}&space;=&space;\frac{n!}{k!\left&space;(&space;n&space;-&space;k&space;\right&space;)!}" title="\binom{n}{k} = \frac{n!}{k!\left ( n - k \right )!}" />
 - Trig
-    - cos T = a/c
-    - sin T = b/c
-    - tan T = sin T / cos T = b / a
-    - pyhtagorean: c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>
-    - trig unity: cos<sup>2</sup>T + sin<sup>2</sup>T = 1
-    - law of cosines = c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2ab cos V
-        - V is angle for a & b, directly across c
-    - law of sines = sin alpha / a = sin beta / b = sin V / c 
+    - <img src="https://latex.codecogs.com/gif.latex?\cos\Theta&space;=&space;\frac{a}{c}" title="\cos\Theta = \frac{a}{c}" />
+    - <img src="https://latex.codecogs.com/gif.latex?\sin\Theta&space;=&space;\frac{b}{c}" title="\sin\Theta = \frac{b}{c}" />
+    - <img src="https://latex.codecogs.com/gif.latex?\tan\Theta&space;=&space;\frac{\sin\Theta}{\cos\Theta}&space;=&space;\frac{a}{b}" title="\tan\Theta = \frac{\sin\Theta}{\cos\Theta} = \frac{a}{b}" />
+    - pyhtagorean: <img src="https://latex.codecogs.com/gif.latex?a^2&plus;b^2=c^2" title="a^2+b^2=c^2" />
+    - trig unity: <img src="https://latex.codecogs.com/gif.latex?\sin^2\Theta&space;&plus;&space;\cos^2\Theta&space;=&space;1" title="\sin^2\Theta + \cos^2\Theta = 1" />
+    - law of cosines = <img src="https://latex.codecogs.com/gif.latex?c^2&space;=&space;a^2&space;&plus;&space;b^2&space;-&space;2ab\cdot&space;\cos\Theta" title="c^2 = a^2 + b^2 - 2ab\cdot \cos\Theta" />
+    - law of sines = <img src="https://latex.codecogs.com/gif.latex?\frac{a}{\sin&space;A}&space;=&space;\frac{b}{\sin&space;B}&space;=&space;\frac{c}{\sin&space;C}" title="\frac{a}{\sin A} = \frac{b}{\sin B} = \frac{c}{\sin C}" />
 - Point
-    - Position only
-    - coordinates
-    - can be represented by vector, must keep track of which is which
-- Vector
-    - Direction and length, ->AB, no position
-    - ||V||, magnitude/length of vector 
-    - parallel, if directions are opposite/same
-        - u || v
-    - Collinear 
-        - vectors have same direction
-    - Middle point of two vectors
-        - ->OM = 1/2(->OA + ->OB)
-    - Coordinates
-        - 1D: v = xe = (vx)
-        - 2D: v = xe1 + ye2  = (vx  vy)
-        - 3D: v = xe1 + ye2 + ze3 = (vx vy vz)
-        - N dimensions: v = ... 
-    - Canonical Basis
-        - 2d: { (1, 0), (0, 1)}
-        - 3d: { (1, 0, 0), (0, 1, 0), (0, 0, 1)}
-    - transpose: v<sup>t</sup>, turn col vec to row vec, row vec to col vec
-    - Vector addition, u + v
+    - Position, coordinates, vector representable
+- Vector 
+    - <img src="https://latex.codecogs.com/gif.latex?v&space;=&space;\begin{pmatrix}&space;v_{x}&space;\\&space;v_{y}&space;\\&space;v_{z}&space;\end{pmatrix}&space;=&space;(v_{x},&space;v_{y},&space;v_{z})^{T}" title="v = \begin{pmatrix} v_{x} \\ v_{y} \\ v_{z} \end{pmatrix} = (v_{x}, v_{y}, v_{z})^{T}" />
+    - Direction and length, no position
+    - magnitude/length of vector 
+        - <img src="https://latex.codecogs.com/gif.latex?\left&space;\|&space;v&space;\right&space;\|" title="\left \| v \right \|" /></a>
+    - transpose: <img src="https://latex.codecogs.com/gif.latex?v^{T}" title="v^{T}" />
+        - turn col vec to row vec, row vec to col vec
+    - Vector addition, <img src="https://latex.codecogs.com/gif.latex?\vec{v}&space;&plus;&space;\vec{u}" title="\vec{v} + \vec{u}" />
         - translation: point + vector 
-    - Scalar Vector Multiplication, k * v
-        - if  k < 0, direction is opposite
     - Vector subtraction
-        - u + (-1v) = u - v
-    - unit vector, has length 1
-        - normalize: n = (1/||v||) / v
-    - Angle notation
-        - [u, v] = pi/2 radians
+        - <img src="https://latex.codecogs.com/gif.latex?\vec{v}&space;-&space;\vec{u}" title="\vec{v} - \vec{u}" />
+    - Scalar Vector Multiplication, <img src="https://latex.codecogs.com/gif.latex?k\vec{v}" title="k\vec{v}" />
+        - if  k < 0, direction is opposite
+    - normalized unit vector, has length 1, keeps angle
+        - <img src="https://latex.codecogs.com/gif.latex?\check{u}&space;=&space;\frac{\vec{v}}{\left&space;\|\vec{v}&space;\right&space;\|}" title="\check{u} = \frac{\vec{v}}{\left \|\vec{v} \right \|}" />
+    - Angle notation, <img src="https://latex.codecogs.com/gif.latex?\[u,&space;v\]" title="\[u, v\]" />
         - could also be perpendicular symbol
-    - Orthogonal / Pependicular (90 degs) (upside T symbol)
-        - if angle makes 90 degs or pi / 2 radians and dot product = 0
-        - 
-    - parallel:  u || v
-        -  v = ku, for some k
-        - on same line, direction could be opposite
     - dot product
-        - u dot v = ||u|| ||v|| cos[u, v] if u and v != 0, else 0
+        - <img src="https://latex.codecogs.com/gif.latex?u&space;\cdot&space;v&space;=&space;\left&space;\|&space;u&space;\right&space;\|\left&space;\|&space;v&space;\right&space;\|\cos(\[u,&space;v\])" title="u \cdot v = \left \| u \right \|\left \| v \right \|\cos(\[u, v\])" />
             - positive if, 0 < angle < pi/2
             - negative, pi/2 < angle <= pi
             - 0, if perpendicular, angle = pi/2, u or v = 0
         - u dot v = u1v1 + u2v2 + u3v3..
         - **normal both vectors**, angle tends to be larger when closer together
         - dot on same itself = length <sup>2</sup>
-
     - law of cosine
-        - w (hypotneuss) = u - v
-        - ||w||<sup>2</sup> = ||u||<sup>2</sup> + ||v||<sup>2</sup> - 2||u||||v|| cos[u, v]
+        - <img src="https://latex.codecogs.com/gif.latex?w&space;(hypotenuse)&space;=&space;u&space;-&space;v" title="w (hypotenuse) = u - v" />
+        - <img src="https://latex.codecogs.com/gif.latex?\left&space;\|&space;w&space;\right&space;\|^{2}&space;=&space;\left&space;\|&space;u&space;\right&space;\|^{2}&space;&plus;&space;\left&space;\|&space;v&space;\right&space;\|^{2}&space;-&space;2\left&space;\|&space;u&space;\right&space;\|&space;\left&space;\|&space;v&space;\right&space;\|&space;\cos\[u,&space;v\]" title="\left \| w \right \|^{2} = \left \| u \right \|^{2} + \left \| v \right \|^{2} - 2\left \| u \right \| \left \| v \right \| \cos\[u, v\]" />
     - angle of two non-zero vectors
-        - [u, v] = arccos(u dot v) / (||u|| ||v||)
-    - orthogonal projection 
-        - P<sub>v</sub> u = (u dot v / ||v||<sup>2</sup>) v
-        - produce 3d image to 2d image, useful for 3d -> 2d
-    - cauchy-schwarz inequality
-        - (u dot v)<sup>2</sup> <= ||u||<sup>2</sup>||v||<sup>2</sup>
-    - triangle inequality
-        - ||u + v|| <= (||u||  + ||v||)
+        - <img src="https://latex.codecogs.com/gif.latex?[u,&space;v]&space;=&space;\frac{\arccos&space;\left&space;(u&space;\cdot&space;v&space;\right&space;)}{\left&space;\|&space;u&space;\right&space;\|\left&space;\|&space;v&space;\right&space;\|}" title="[u, v] = \frac{\arccos \left (u \cdot v \right )}{\left \| u \right \|\left \| v \right \|}" />
+    - Orthogonal / Pependicular <img src="https://latex.codecogs.com/gif.latex?v\perp&space;u" title="v\perp u" />
+        - if angle makes 90 deg,  dot product = 0
+        - orthogonal projection, <img src="https://latex.codecogs.com/gif.latex?Proj_{v}&space;u&space;=&space;\left&space;(&space;\frac{u&space;\cdot&space;v&space;}{\left&space;\|&space;v&space;\right&space;\|^{2}}&space;\right&space;)&space;v" title="Proj_{v} u = \left ( \frac{u \cdot v }{\left \| v \right \|^{2}} \right ) v" />
+            - produce 3d image to 2d image, useful for 3d -> 2d
+    - Parallel:  <img src="https://latex.codecogs.com/gif.latex?v\parallel&space;u" title="v\parallel u" />
+        - on same line, direction could be opposite
+        - Collinear 
+            - vectors have same direction
+    - cauchy-schwarz inequality, <img src="https://latex.codecogs.com/gif.latex?(u&space;\cdot&space;v&space;)^{2}&space;\leq&space;\left&space;\|&space;u&space;\right&space;\|^{2}&space;\left&space;\|&space;v&space;\right&space;\|^{2}" title="(u \cdot v )^{2} \leq \left \| u \right \|^{2} \left \| v \right \|^{2}" />
+    - triangle inequality, <img src="https://latex.codecogs.com/gif.latex?\left&space;\|&space;u&space;&plus;&space;v&space;\right&space;\|&space;\leq&space;\left&space;\|&space;u&space;\right&space;\|&space;&plus;&space;\left&space;\|&space;v&space;\right&space;\|" title="\left \| u + v \right \| \leq \left \| u \right \| + \left \| v \right \|" />
     - Cross product
         - find vector perpendicular to plane
         - calculate how light reflects off surface
-        - 
+    - Coordinates
+        - 3D: v = xe1 + ye2 + ze3 = (vx vy vz)
+    - Canonical Basis (identity matrix basically)
+        - <img src="https://latex.codecogs.com/gif.latex?v&space;=&space;\begin{pmatrix}&space;1&space;&&space;0&space;&&space;0&space;\\&space;0&space;&&space;1&space;&&space;0&space;\\&space;0&space;&&space;0&space;&&space;1&space;\end{pmatrix}" title="v = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}" />
     - 
 - Displacement
-    - finalPoint - startingPoint
-    - 
+    - finalPoint - startingPoint then use vector to move
 - Line
     - starting point S, direction d
     - parameterized line
@@ -117,4 +103,6 @@
 - http://immersivemath.com/ila/index.html
     - Linear Algebra
 - http://programmedlessons.org/VectorLessons/index.html
-    - Very good practice on vectors and matrices
+    - Very good practice on vectors and matrices\
+- https://www.codecogs.com/latex/eqneditor.php
+    - Useful for creating HTML image tags for equations
