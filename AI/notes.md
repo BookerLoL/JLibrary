@@ -62,3 +62,16 @@
 - Equilateral 
     - https://www.heatonresearch.com/2017/02/10/equilateral.html 
 - Min-Max normalization more common than Gaussian normalization
+
+
+- If using 0-1 encoding, need to have activation return those values
+- **Alpha** (free parameter)
+    - affects learning rate, too big could overshoot, too low makes training slow
+- MaxEpochs (free parameter)
+- Free paremeters are determined from trial and error 
+- Perceptron
+    - Use in only simple classification problems where there is a clear line (not curved)
+        - linearly separable
+- Neural Networks
+    - feed forward can approximate continuous mathematical function (universal approx theorem)
+    

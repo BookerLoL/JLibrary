@@ -1,0 +1,120 @@
+# Notes
+-Create 3d imagary, create 2d images of world 
+- Rate of images displayed (FPS / Hz)
+- Graphics Rendering Pipeline
+- <a href="https://www.codecogs.com/eqnedit.php?latex=S&space;\cdot&space;C" target="_blank"><img src="https://latex.codecogs.com/gif.latex?S&space;\cdot&space;C" title="S \cdot C" /></a>
+
+## Math
+- x member of [X, Y) == X <= x < Y
+- (n k) = n! / k!(n-k)!
+    - binomial coefficeint and factor
+- Trig
+    - cos T = a/c
+    - sin T = b/c
+    - tan T = sin T / cos T = b / a
+    - pyhtagorean: c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>
+    - trig unity: cos<sup>2</sup>T + sin<sup>2</sup>T = 1
+    - law of cosines = c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2ab cos V
+        - V is angle for a & b, directly across c
+    - law of sines = sin alpha / a = sin beta / b = sin V / c 
+- Point
+    - Position only
+    - coordinates
+    - can be represented by vector, must keep track of which is which
+- Vector
+    - Direction and length, ->AB, no position
+    - ||V||, magnitude/length of vector 
+    - parallel, if directions are opposite/same
+        - u || v
+    - Collinear 
+        - vectors have same direction
+    - Middle point of two vectors
+        - ->OM = 1/2(->OA + ->OB)
+    - Coordinates
+        - 1D: v = xe = (vx)
+        - 2D: v = xe1 + ye2  = (vx  vy)
+        - 3D: v = xe1 + ye2 + ze3 = (vx vy vz)
+        - N dimensions: v = ... 
+    - Canonical Basis
+        - 2d: { (1, 0), (0, 1)}
+        - 3d: { (1, 0, 0), (0, 1, 0), (0, 0, 1)}
+    - transpose: v<sup>t</sup>, turn col vec to row vec, row vec to col vec
+    - Vector addition, u + v
+        - translation: point + vector 
+    - Scalar Vector Multiplication, k * v
+        - if  k < 0, direction is opposite
+    - Vector subtraction
+        - u + (-1v) = u - v
+    - unit vector, has length 1
+        - normalize: n = (1/||v||) / v
+    - Angle notation
+        - [u, v] = pi/2 radians
+        - could also be perpendicular symbol
+    - Orthogonal / Pependicular (90 degs) (upside T symbol)
+        - if angle makes 90 degs or pi / 2 radians and dot product = 0
+        - 
+    - parallel:  u || v
+        -  v = ku, for some k
+        - on same line, direction could be opposite
+    - dot product
+        - u dot v = ||u|| ||v|| cos[u, v] if u and v != 0, else 0
+            - positive if, 0 < angle < pi/2
+            - negative, pi/2 < angle <= pi
+            - 0, if perpendicular, angle = pi/2, u or v = 0
+        - u dot v = u1v1 + u2v2 + u3v3..
+        - **normal both vectors**, angle tends to be larger when closer together
+        - dot on same itself = length <sup>2</sup>
+
+    - law of cosine
+        - w (hypotneuss) = u - v
+        - ||w||<sup>2</sup> = ||u||<sup>2</sup> + ||v||<sup>2</sup> - 2||u||||v|| cos[u, v]
+    - angle of two non-zero vectors
+        - [u, v] = arccos(u dot v) / (||u|| ||v||)
+    - orthogonal projection 
+        - P<sub>v</sub> u = (u dot v / ||v||<sup>2</sup>) v
+        - produce 3d image to 2d image, useful for 3d -> 2d
+    - cauchy-schwarz inequality
+        - (u dot v)<sup>2</sup> <= ||u||<sup>2</sup>||v||<sup>2</sup>
+    - triangle inequality
+        - ||u + v|| <= (||u||  + ||v||)
+    - Cross product
+        - find vector perpendicular to plane
+        - calculate how light reflects off surface
+        - 
+    - 
+- Displacement
+    - finalPoint - startingPoint
+    - 
+- Line
+    - starting point S, direction d
+    - parameterized line
+        - P(t) = S + td
+            - t is scalar
+- Plane
+    - similar to lines, 3d or higher, splits domain into two half-spaces
+    - two non-co-linear vectors define a plane
+    - parameterized plane
+        - P(t1, t2) S + t1d1 + t2d2
+    - implicit plane eq
+        - n dot (P - S) = 0
+    - orthogonal projection onto plane
+        - Q = P - Pn v
+            - v = P - S
+    - Shadow Projection on a Plane
+    - Ray-sphere intersection
+        - ||P - C|| = r 
+            - P points on surface, C center point, r as radius
+        - R(t) = S + td
+            - t = (-b +- sqrt(b<sup>2</sup> - ac)) / a
+    - Law of reflection
+        - r = i - Pn i - Pn i
+            - r = i - 2 ((i dot n) / ||n||<sup>2</sup>)n
+
+    - http://immersivemath.com/ila/ch04_vectorproduct/ch04.html
+# Resources
+- Real-Time Rendering Fourth Edition 
+    - http://www.realtimerendering.com/#intro
+- http://immersivemath.com/ila/index.html
+    - Linear Algebra
+- http://programmedlessons.org/VectorLessons/index.html
+    - Very good practice on vectors and matrices
