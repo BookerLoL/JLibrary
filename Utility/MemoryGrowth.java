@@ -9,7 +9,7 @@ public class MemoryGrowth {
 		return (length * 3) / 2 + 1;
 	}
 
-	public static int javarowth(int length) {
+	public static int javaGrowth(int length) {
 		return length + (length >> 1);
 	}
 }
