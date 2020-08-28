@@ -26,9 +26,11 @@
     - Direction and length, no position
     - magnitude/length of vector 
         - <img src="https://latex.codecogs.com/gif.latex?\left&space;\|&space;v&space;\right&space;\|" title="\left \| v \right \|" /></a>
-    - transpose: <img src="https://latex.codecogs.com/gif.latex?v^{T}" title="v^{T}" />
+    - transpose
+        - <img src="https://latex.codecogs.com/gif.latex?v^{T}" title="v^{T}" />
         - turn col vec to row vec, row vec to col vec
-    - Vector addition, <img src="https://latex.codecogs.com/gif.latex?\vec{v}&space;&plus;&space;\vec{u}" title="\vec{v} + \vec{u}" />
+    - Vector addition 
+        - <img src="https://latex.codecogs.com/gif.latex?\vec{v}&space;&plus;&space;\vec{u}" title="\vec{v} + \vec{u}" />
         - translation: point + vector 
     - Vector subtraction
         - <img src="https://latex.codecogs.com/gif.latex?\vec{v}&space;-&space;\vec{u}" title="\vec{v} - \vec{u}" />
@@ -51,15 +53,19 @@
         - <img src="https://latex.codecogs.com/gif.latex?\left&space;\|&space;w&space;\right&space;\|^{2}&space;=&space;\left&space;\|&space;u&space;\right&space;\|^{2}&space;&plus;&space;\left&space;\|&space;v&space;\right&space;\|^{2}&space;-&space;2\left&space;\|&space;u&space;\right&space;\|&space;\left&space;\|&space;v&space;\right&space;\|&space;\cos\[u,&space;v\]" title="\left \| w \right \|^{2} = \left \| u \right \|^{2} + \left \| v \right \|^{2} - 2\left \| u \right \| \left \| v \right \| \cos\[u, v\]" />
     - angle of two non-zero vectors
         - <img src="https://latex.codecogs.com/gif.latex?[u,&space;v]&space;=&space;\frac{\arccos&space;\left&space;(u&space;\cdot&space;v&space;\right&space;)}{\left&space;\|&space;u&space;\right&space;\|\left&space;\|&space;v&space;\right&space;\|}" title="[u, v] = \frac{\arccos \left (u \cdot v \right )}{\left \| u \right \|\left \| v \right \|}" />
-    - Orthogonal / Pependicular <img src="https://latex.codecogs.com/gif.latex?v\perp&space;u" title="v\perp u" />
+    - Orthogonal / Pependicular 
+        - <img src="https://latex.codecogs.com/gif.latex?v\perp&space;u" title="v\perp u" />
         - if angle makes 90 deg,  dot product = 0
-        - orthogonal projection, <img src="https://latex.codecogs.com/gif.latex?Proj_{v}&space;u&space;=&space;\left&space;(&space;\frac{u&space;\cdot&space;v&space;}{\left&space;\|&space;v&space;\right&space;\|^{2}}&space;\right&space;)&space;v" title="Proj_{v} u = \left ( \frac{u \cdot v }{\left \| v \right \|^{2}} \right ) v" />
+        - orthogonal projection
+            - <img src="https://latex.codecogs.com/gif.latex?Proj_{v}&space;u&space;=&space;\left&space;(&space;\frac{u&space;\cdot&space;v&space;}{\left&space;\|&space;v&space;\right&space;\|^{2}}&space;\right&space;)&space;v" title="Proj_{v} u = \left ( \frac{u \cdot v }{\left \| v \right \|^{2}} \right ) v" />
             - produce 3d image to 2d image, useful for 3d -> 2d
-    - Parallel:  <img src="https://latex.codecogs.com/gif.latex?v\parallel&space;u" title="v\parallel u" />
+    - Parallel:  
+        - <img src="https://latex.codecogs.com/gif.latex?v\parallel&space;u" title="v\parallel u" />
         - on same line, direction could be opposite
         - Collinear 
             - vectors have same direction
-    - cauchy-schwarz inequality, <img src="https://latex.codecogs.com/gif.latex?(u&space;\cdot&space;v&space;)^{2}&space;\leq&space;\left&space;\|&space;u&space;\right&space;\|^{2}&space;\left&space;\|&space;v&space;\right&space;\|^{2}" title="(u \cdot v )^{2} \leq \left \| u \right \|^{2} \left \| v \right \|^{2}" />
+    - cauchy-schwarz inequality
+        - <img src="https://latex.codecogs.com/gif.latex?(u&space;\cdot&space;v&space;)^{2}&space;\leq&space;\left&space;\|&space;u&space;\right&space;\|^{2}&space;\left&space;\|&space;v&space;\right&space;\|^{2}" title="(u \cdot v )^{2} \leq \left \| u \right \|^{2} \left \| v \right \|^{2}" />
     - triangle inequality, <img src="https://latex.codecogs.com/gif.latex?\left&space;\|&space;u&space;&plus;&space;v&space;\right&space;\|&space;\leq&space;\left&space;\|&space;u&space;\right&space;\|&space;&plus;&space;\left&space;\|&space;v&space;\right&space;\|" title="\left \| u + v \right \| \leq \left \| u \right \| + \left \| v \right \|" />
     - Cross product
         - find vector perpendicular to plane
