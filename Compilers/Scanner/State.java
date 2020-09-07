@@ -1,19 +1,21 @@
-package Scanner;
+package scanner;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class State<T extends Edge<? extends State<T>>> {
+public abstract class State {
+	public abstract int getID();
+
 	protected String name;
 	protected boolean isFinal;
-	protected List<T> edges;
+	protected List<Edge> edges;
 
 	public State(String name, boolean isFinal) {
 		this.name = name;
 		this.isFinal = isFinal;
 		edges = new LinkedList<>();
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -22,61 +24,55 @@ public abstract class State<T extends Edge<? extends State<T>>> {
 		return isFinal;
 	}
 
-	public List<T> getEdges() {
+	public List<Edge> getEdges() {
 		return edges;
 	}
 
-	public String toString() {
-		String isFinalStr = isFinal ? "is final" : "is not final";
-		return "Node: " + name + " " + isFinalStr;
-	}
-
-	public int hashCode() {
-		return this.name.hashCode();
-	}
-
-	/*
-	 * We are going to assume the same name is equal node but in reality that isn't
-	 * always true assuming you have two nodes with the same name. Would need to
-	 * check if it's a final state and it's collection of edges for a deep equals
-	 */
-	@SuppressWarnings("unchecked")
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null)
+	public boolean addEdge(Edge newEdge) {
+		if (!newEdge.getFrom().equals(this) || getEdges().contains(newEdge)) {
 			return false;
-		if (getClass() != o.getClass())
-			return false;
-		State<T> other = (State<T>) o;
-		return this.getName().equals(other.getName());
+		}
+		return getEdges().add(newEdge);
 	}
 
-	private T get(char transitionCh) {
-		for (T edge : getEdges()) {
-			if (edge.transitionChars.contains(transitionCh)) {
+	public State transition(char transitionCh) {
+		Edge edge = getEdge(transitionCh);
+		return edge != null ? edge.getNext() : null;
+	}
+
+	private Edge getEdge(char transitionCh) {
+		for (Edge edge : getEdges()) {
+			if (edge.hasTransition(transitionCh)) {
 				return edge;
 			}
 		}
 		return null;
 	}
 
-	public State<T> transition(char transitionCh) {
-		T edge = get(transitionCh);
-		return edge != null ? edge.getNext() : null;
-	}
-	
-	public State<T> changeToFinal(boolean isFinal) {
+	public State setIsFinal(boolean isFinal) {
 		this.isFinal = isFinal;
 		return this;
 	}
 
-	public void add(T newEdge) {
-		if (edges.contains(newEdge) || !newEdge.getFrom().equals(this)) {
-			return;
-		} 
-		getEdges().add(newEdge);
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		} else if (o == null) {
+			return false;
+		} else if (getClass() != o.getClass()) {
+			return false;
+		}
+
+		State other = (State) o;
+		return getName().equals(other.getName());
 	}
-	
-	public abstract int getID();
+
+	public String toString() {
+		String isFinalStr = isFinal ? "is final" : "is not final";
+		return "Node: " + getName() + " " + isFinalStr;
+	}
+
+	public int hashCode() {
+		return name.hashCode();
+	}
 }

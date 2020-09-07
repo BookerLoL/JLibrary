@@ -1,7 +1,78 @@
-# Notes
+# Notes based on Real-Time Rendering 4th Edition
 -Create 3d imagary, create 2d images of world 
 - Rate of images displayed (FPS / Hz)
-- Graphics Rendering Pipeline
+
+## Vocabulary
+- FPS: Frames (num images) per second 
+    - rate for frame or avg performance over time
+- Hz: Hertz (1/seconds)
+    - frequency of update
+- Model coordinates: coordinates of obj
+- API: Application Programming Interface
+- View Space: What camera can see after view transformation on world space
+- Shading: effect of light on material
+- Canonical view volume: Unit cube
+- Frustum: view volume of truncated pyramid with rectangular base
+- Screen coordinates: x and y 
+- Window coordinates: include z 
+- Texturing: gluing images onto object
+- ROP: Raster operations (pipeline) / render output unit
+- Double buffering: rendering takes off screen in back buffer, contents swapped to front for viewers
+- GPU: Graphics Processing Unit
+
+## Rendering Pipeline
+- 3D scene -> 2D image
+- **4 main stages** 
+    - Application
+    - Geometry Processing
+    - Rasterization
+    - Pixel processing
+- **Application Stage**
+    - mostly CPU, maybe in GPU (computer shader)
+    - get rendering primitives ready for next stage
+        - handle input, acceleration algos, collision detection
+    - allows for superscalar construction
+- **Geometry Processing Stage**
+    - Stages
+        - Vertex Shading
+        - Projection
+        - Clipping
+        - Screen Mapping
+    - Vertex Shading
+        1) compute pos for vertex
+            - model transform -> world coordinates
+        2) vertex output data (normal and texture coordinates)
+        3) Optional
+            - tessellation, geometry shading, stream output
+    - Projection 
+        - **Othographic** (type of parallel projection)
+            - translation and scaling
+            - parallel lines remain parallel
+        - **Perspective** 
+            - farther way obj is, smaller it appears
+            - parallel lines may converge at horizon
+        - Other Parallel Projections
+            - Oblique, Axonometric projections
+    - Clipping
+        - 4-d homogenous coordinate to interpolate and clip when perspective project used
+        - perspective division, triangle pos -> 3d normalized device coordinates
+    - Screen Mapping
+        - 3d -> screen coordinates
+- **Rasterization** / Scan Conversion
+    - find all pixels inside primitives being rendered
+    1) Triangle setup / Primitive Assembly
+        - equations, data computed
+    2) Triangle traversal
+        - Pixel's center/sample covered by triangle is checked
+    - Send pixels/samples inside primitive sent to next stage
+- **Pixel Processing**
+    1) Pixel Shading
+        - Pixel shader / fragment shader
+    2) Merging
+        - stencil buffer, framebuffer
+
+## GPU
+
 
 ## Math
 - x member of [X, Y) == X <= x < Y

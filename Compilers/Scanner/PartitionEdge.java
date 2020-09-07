@@ -1,9 +1,10 @@
-package Scanner;
+package scanner;
 
 import java.util.Set;
 
-public class PartitionEdge extends Edge<PartitionState> {
-	public PartitionEdge(PartitionState from, PartitionState next, Set<Character> transitionChars) {
+public class PartitionEdge extends Edge {
+	public PartitionEdge(State from, State next, Set<Character> transitionChars) {
 		super(from, next, transitionChars);
 	}
 }
+

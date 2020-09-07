@@ -1,57 +1,68 @@
-package Scanner;
+package scanner;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Edge<T extends State<?>> {
+public abstract class Edge {
 	public static final char EMPTY_TRANSITION = '\0';
+	protected State from;
+	protected State next;
+	protected Set<Character> transitionChars;
 
-	public T from;
-	public T next;
-	public Set<Character> transitionChars;
-	
-	public Edge(T from, T next, Set<Character> transitionChars) {
+	public Edge(State from, State next, char transitionChar) {
+		this(from, next, new HashSet<>(Arrays.asList(transitionChar)));
+	}
+
+	public Edge(State from, State next, Set<Character> transitionChars) {
 		this.from = from;
-		this.next = next; 
+		this.next = next;
 		this.transitionChars = transitionChars;
 	}
-	
-	public static Set<Character> getChars(char from, char toInclusive) {
-		Set<Character> transitions = new HashSet<>();
-		char curr = from;
-		while (curr <= toInclusive) {
-			transitions.add(curr);
-			curr++;
-		}
-		return transitions;
-	}
-	
-	public T getFrom() {
+
+	public State getFrom() {
 		return from;
 	}
-	
-	public T getNext() {
+
+	public State getNext() {
 		return next;
 	}
-	
-	public Set<Character> getTransitionsChars() {
+
+	public Set<Character> getTransitions() {
 		return transitionChars;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public boolean equals(Object o) {
-		 if (this == o)
-	         return true;
-	      if (o == null)
-	         return false;
-	      if (getClass() != o.getClass())
-	         return false;
-	      Edge<T> other = (Edge<T>) o;
-	      return this.getFrom().equals(other.getFrom()) && this.getNext().equals(other.getNext());	  
+
+	public boolean hasTransition(char transitionChar) {
+		return getTransitions().contains(transitionChar);
 	}
-	
+
+	public void addTransition(Character... transitionChars) {
+		getTransitions().addAll(Arrays.asList(transitionChars));
+	}
+
+	public static Edge getEdgeContaining(State source, State target) {
+		for (Edge edge : source.getEdges()) {
+			if (edge.getNext().equals(target)) {
+				return edge;
+			}
+		}
+		return null;
+	}
+
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		} else if (o == null) {
+			return false;
+		} else if (getClass() != o.getClass()) {
+			return false;
+		}
+
+		Edge other = (Edge) o;
+		return getFrom().equals(other.getFrom()) && getNext().equals(other.getNext());
+	}
 
 	public String toString() {
-		return "From: " + from.getName() + " to " + next.getName() + " using: " + transitionChars.toString();
+		return "From: " + getFrom().getName() + " to " + getNext().getName() + " using: " + getTransitions().toString();
 	}
 }

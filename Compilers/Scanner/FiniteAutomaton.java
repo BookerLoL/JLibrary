@@ -1,18 +1,18 @@
-package Scanner;
+package scanner;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-public class FiniteAutomaton<S extends State<T>, T extends Edge<S>> {
-	private Set<S> states;
+public class FiniteAutomaton {
+	private Set<State> states;
 	private Set<Character> alphabet;
-	private Set<T> transitions;
-	private S startingState;
-	private Set<S> acceptingStates;
+	private Set<Edge> transitions;
+	private State startingState;
+	private Set<State> acceptingStates;
 
-	public FiniteAutomaton(Set<S> states, Set<Character> alphabet, Set<T> transitions, S startingState, Set<S> acceptingStates) {
+	public FiniteAutomaton(Set<State> states, Set<Character> alphabet, Set<Edge> transitions, State startingState, Set<State> acceptingStates) {
 		this.states = states;
 		this.alphabet = alphabet;
 		this.transitions = transitions;
@@ -21,32 +21,33 @@ public class FiniteAutomaton<S extends State<T>, T extends Edge<S>> {
 	}
 	
 	//bfs approach to iterating through graph
-	public FiniteAutomaton(S graph) {
+	public FiniteAutomaton(State graph) {
 		states = new HashSet<>();
 		alphabet = new HashSet<>();
 		transitions = new HashSet<>();
 		acceptingStates = new HashSet<>();
-		
 		startingState = graph;
-		Queue<S> worklist = new LinkedList<>();
-		worklist.add(graph);
+		
+		Queue<State> worklist = new LinkedList<>();
+		worklist.add(startingState);
 		while (!worklist.isEmpty()) {
-			S curr = worklist.remove();
+			State curr = worklist.remove();
 			if (!states.contains(curr)) {
 				states.add(curr);
 				if (curr.isFinal()) {
 					acceptingStates.add(curr);
 				}
-				for (T edge : curr.getEdges()) {
+				
+				for (Edge edge : curr.getEdges()) {
 					transitions.add(edge);
+					alphabet.addAll(edge.getTransitions());
 					worklist.add(edge.getNext());
-					alphabet.addAll(edge.getTransitionsChars());
 				}
 			}
 		}
 	}
 	
-	public Set<S> getStates() {
+	public Set<State> getStates() {
 		return states;
 	}
 	
@@ -54,15 +55,15 @@ public class FiniteAutomaton<S extends State<T>, T extends Edge<S>> {
 		return alphabet;
 	}
 	
-	public Set<T> getTransitions() {
+	public Set<Edge> getTransitions() {
 		return transitions;
 	}
 	
-	public S getStartState() {
+	public State getStartState() {
 		return startingState;
 	}
 	
-	public Set<S> getAcceptingStates() {
+	public Set<State> getAcceptingStates() {
 		return acceptingStates;
 	}
 }

@@ -1,73 +1,74 @@
-package Scanner;
+package scanner;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 
-/*
- * Takes a collection of words to recognize as valid
- * 
- * Closure-Free Regular Expression
- */
+//Behaves similar to a trie
 public class BasicRecognizer {
-	int id = 0;
-	State<NFAEdge_v1> startingState = new NFAState_v1(id, false);
-
-	public BasicRecognizer(Collection<String> words) {
-		addAll(words);
-	}
+	private int id = 0;
+	private State startingState = StateFactory.create(Type.NFA, id, false);
 
 	public void add(String word) {
-		State<NFAEdge_v1> currState = startingState;
-		State<NFAEdge_v1> prevState = null;
-		int length = word.length();
-		for (int i = 0; i < length; i++) {
-			char transitionValue = word.charAt(i);
+		State currState = startingState, prevState = null;
+		for (int charIdx = 0; charIdx < word.length(); charIdx++) {
+			char transitionValue = word.charAt(charIdx);
 			prevState = currState;
 			currState = currState.transition(transitionValue);
 			if (currState == null) {
-				id++;
-				NFAEdge_v1 newPath = new NFAEdge_v1((NFAState_v1) prevState, new NFAState_v1(id, false), transitionValue);
-				prevState.edges.add(newPath);
-				currState = newPath.next;
-			}
-
-			if (i == length - 1) {
-				currState.isFinal = true;
+				currState = StateFactory.create(Type.NFA, ++id, false);
+				Edge transition = EdgeFactory.create(Type.NFA, prevState, currState, transitionValue);
+				prevState.addEdge(transition);
 			}
 		}
+		currState.setIsFinal(true);
 	}
 
 	public void addAll(Collection<String> words) {
-		words.stream().forEach(word -> add(word));
+		words.forEach(this::add);
+	}
+
+	public void addAll(String... words) {
+		addAll(Arrays.asList(words));
 	}
 
 	public void printAllPaths() {
 		printAllPathsHelper(startingState);
 	}
 
-	/*
-	 * DFS search to print the paths
-	 */
-	private void printAllPathsHelper(State<NFAEdge_v1> current) {
-		System.out.println("Node name: " + current.name + " and is final? " + current.isFinal);
+	// DFS search to print each state
+	private void printAllPathsHelper(State current) {
+		System.out.println("Node name: " + current.getName() + " and is final: " + current.isFinal());
 
-		if (current.edges.isEmpty()) {
-			System.out.println("\tHas no edges");
-		} else {
-			for (NFAEdge_v1 edge : current.edges) {
-				NFAState_v1 next = edge.next;
-				System.out.println("Transition needs: " + edge.transitionChars + " from node: " + current.name);
-				printAllPathsHelper(next);
-			}
+		for (Edge edge : current.getEdges()) {
+			State nextState = edge.getNext();
+			System.out.println("Transition needs: " + edge.getTransitions() + " from node: " + current.getName());
+			printAllPathsHelper(nextState);
+		}
+	}
+
+	public void printAllWords() {
+		printAllWordsHelper(startingState, "");
+	}
+
+	private void printAllWordsHelper(State current, String result) {
+		if (current.isFinal()) {
+			System.out.println(result);
+		}
+
+		for (Edge edge : current.getEdges()) {
+			State nextState = edge.getNext();
+			printAllWordsHelper(nextState, result + (char) edge.getTransitions().toArray()[0]);
 		}
 	}
 
 	public static void main(String[] args) {
-		Collection<String> words = new LinkedList<>();
-		words.add("eed");
-		words.add("eed");
-		words.add("eed");
-		BasicRecognizer br = new BasicRecognizer(words);
-		br.printAllPaths();
+		BasicRecognizer br = new BasicRecognizer();
+
+		br.addAll("abstract", "assert", "continue", "for", "new", "switch", "default", "goto", "package", "sychronized",
+				"boolean", "do", "if", "private", "this", "break", "double", "implements", "protected", "throw", "byte",
+				"else", "import", "public", "throws", "case", "enum", "instanceof", "return", "transient", "catch",
+				"extends", "int", "short", "try", "char", "final", "interface", "static", "void", "class", "finally",
+				"long", "strictfp", "volatile", "const", "float", "native", "super", "while");
+		br.printAllWords();
 	}
 }

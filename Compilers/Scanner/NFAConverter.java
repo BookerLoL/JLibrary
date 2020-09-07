@@ -1,38 +1,32 @@
-package Scanner;
+package scanner;
 
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Queue;
-import java.util.Set;
 
 /*
  * Takes in regular expressions
  * 
  * Based on Thompson's construction to translate Regular Expression to NFA 	
  * 
+ * Currently doesn't handle special characters \[
  * 
- * Currently doesn't handle cases where uses want to use the operators as transitions
- * but could easily be implemented by checking if there is an escape character before it '\'
- * 
- * It would be better to construct a tree in which operations should be operated first to make it more explict
- * 
- * Operation hierachy (execute first)
+ * Operation hierachy (Highest priority at the top)
  * ( )  (ex: (...) ), parentheses; 
  * [ ]  (ex: [a-z]), set bracket
  *   *  (ex: a*), closure
- *   ?  (ex: a?), question mark, zero or one
- *   +  (ex: a+), plus, one or more
+ *   ?  (ex: a?), optional 
+ *   +  (ex: a+), kleene plus
  *   |  (ex: a | b), alternation
- *      (ex: ab) , concantenation 
+ *  ab  (ex: ab) , concantenation 
  *   	
- *   
- *   
- *  The class has been extended to support  + and ? operations
  */
-public class NFAConverter implements Convertible<State<NFAEdge_v1>, String>, Printable<State<NFAEdge_v1>> {
+
+/*
+ * TO-DO LIST
+ * finish  set bracket [a-z]
+ */
+public class NFAConverter extends Converter<String, State> {
 	private static final char L_PAREN = '(';
 	private static final char R_PAREN = ')';
 	private static final char ALTERATION = '|';
@@ -41,22 +35,15 @@ public class NFAConverter implements Convertible<State<NFAEdge_v1>, String>, Pri
 	private static final char R_SET = ']';
 	private static final char PLUS = '+';
 	private static final char QUESTION_MARK = '?';
-	
-	private int id = 0;
-	
-	@Override
-	public State<NFAEdge_v1> convert(String input) {
-		resetIdCount();
+
+	public State convert(String input) {
+		resetID(0);
 		return construct(0, input.length(), input, new LinkedList<>());
 	}
-	
-	private void resetIdCount() {
-		id = 0;
-	}
-	
-	private State<NFAEdge_v1> construct(int fromIndex, int toIndex, String input, Deque<State<NFAEdge_v1>> nfas) {
+
+	private State construct(int fromIndex, int toIndex, String input, Deque<State> nfas) {
 		int index = fromIndex;
-		
+
 		while (index < toIndex) {
 			char ch = input.charAt(index);
 			if (isOperator(ch)) {
@@ -67,161 +54,143 @@ public class NFAConverter implements Convertible<State<NFAEdge_v1>, String>, Pri
 				} else if (ch == L_PAREN) {
 					index += constructParentheses(index, nfas, input);
 				} else if (ch == L_SET) {
-					//finish  constructSet later, [a-z]
 					index += constructSet(index, nfas, input);
 				} else if (ch == PLUS) {
 					constructPlus(nfas);
 				} else if (ch == QUESTION_MARK) {
 					constructQuestionMark(nfas);
 				}
-			} else { //create one character NFA
+			} else {
 				constructSingleCharNFA(ch, nfas);
 			}
 			index++;
 		}
 		return combineAll(nfas);
 	}
-	
+
 	private boolean isOperator(char ch) {
-		return ch == ALTERATION || ch == CLOSURE || ch == L_PAREN || ch == R_PAREN || ch == L_SET || ch == R_SET || ch == PLUS || ch == QUESTION_MARK;
-	}
-	
-	private NFAState_v1 createState(boolean isFinal) {
-		NFAState_v1 state = new NFAState_v1(id, isFinal);
-		id++;
-		return state;
-	}
-	
-	/*
-	 *   "Left | Right" 
-	 */
-	private int constructAlternation(int startIndex, Deque<State<NFAEdge_v1>> nfas, String input) {
-		String afterAlternation = input.substring(startIndex+1);
-		State<NFAEdge_v1> rightPart = construct(0, afterAlternation.length(), afterAlternation, new LinkedList<>());
-		State<NFAEdge_v1> leftPart = combineAll(nfas);
-		State<NFAEdge_v1> alternatedNFA = addAlternation((NFAState_v1)leftPart, (NFAState_v1)rightPart);
-		nfas.add(alternatedNFA);
-		return afterAlternation.length();
-	}
-	
-	private State<NFAEdge_v1> addAlternation(NFAState_v1 firstNFA, NFAState_v1 secondNFA) {	
-		NFAState_v1  newStart = createState(false);
-		NFAState_v1  newEnd = createState(true);
-		State<NFAEdge_v1> firstNFAEnd = getEnd(firstNFA).changeToFinal(false);
-		State<NFAEdge_v1>  secondNFAEnd = getEnd(secondNFA).changeToFinal(false);
-	
-		NFAEdge_v1 toFirstNFA = NFAEdge_v1.EMPTY_TRANSITION(newStart, firstNFA);
-		NFAEdge_v1 toSecondNFA = NFAEdge_v1.EMPTY_TRANSITION(newStart, secondNFA);
-		NFAEdge_v1 firstNFAtoNewEnd = NFAEdge_v1.EMPTY_TRANSITION(firstNFAEnd, newEnd);
-		NFAEdge_v1 secondNFAtoNewEnd = NFAEdge_v1.EMPTY_TRANSITION(secondNFAEnd, newEnd);
-		
-		newStart.add(toFirstNFA);
-		newStart.add(toSecondNFA);
-		firstNFAEnd.add(firstNFAtoNewEnd);
-		secondNFAEnd.add(secondNFAtoNewEnd);
-		
-		return newStart;
-	}
-			
-	/*
-	 *  X *
-	 */
-	private void constructClosure(Deque<State<NFAEdge_v1>> nfas) {
-		State<NFAEdge_v1> mostRecent = nfas.removeLast();
-		State<NFAEdge_v1> closuredRecent = addClosure(mostRecent);
-		nfas.addLast(closuredRecent);
-	}
-	
-	private void constructQuestionMark(Deque<State<NFAEdge_v1>> nfas) {
-		State<NFAEdge_v1> mostRecent = nfas.removeLast();
-		State<NFAEdge_v1> closuredRecent = addQuestionMark(mostRecent);
-		nfas.addLast(closuredRecent);
-	}
-	
-	private void constructPlus(Deque<State<NFAEdge_v1>> nfas) {
-		State<NFAEdge_v1> mostRecent = nfas.removeLast();
-		State<NFAEdge_v1> closuredRecent = addPlus(mostRecent);
-		nfas.addLast(closuredRecent);
-	}
-	
-	private State<NFAEdge_v1> addQuestionMark(State<NFAEdge_v1> nfa) {
-		State<NFAEdge_v1> nfaEnd = getEnd(nfa).changeToFinal(false);
-		NFAState_v1 newStart = createState(false);
-		NFAState_v1 newEnd = createState(true);
-		
-		NFAEdge_v1 startToNFA = NFAEdge_v1.EMPTY_TRANSITION(newStart, nfa); // new start -> start of nfa
-		NFAEdge_v1 startToEnd = NFAEdge_v1.EMPTY_TRANSITION(newStart, newEnd); // new start -> new end
-		NFAEdge_v1 nfaToEnd = NFAEdge_v1.EMPTY_TRANSITION(nfaEnd, newEnd); // end of nfa -> new end
-		
-		newStart.add(startToNFA);
-		newStart.add(startToEnd);
-		nfaEnd.add(nfaToEnd);
-		
-		return newStart;
-	}
-	
-	private State<NFAEdge_v1> addPlus(State<NFAEdge_v1> nfa) {
-		State<NFAEdge_v1> nfaEnd = getEnd(nfa).changeToFinal(false);
-		NFAState_v1 newEnd = createState(true);
-		
-		
-		NFAEdge_v1 nfaToEnd = NFAEdge_v1.EMPTY_TRANSITION(nfaEnd, newEnd); // end of nfa -> new end
-		NFAEdge_v1 nfaToStartNFA = NFAEdge_v1.EMPTY_TRANSITION(nfaEnd, nfa);
-		
-		nfaEnd.add(nfaToEnd);
-		nfaEnd.add(nfaToStartNFA);
-		
-		return nfa;
-	}
-	
-	private int constructParentheses(int index, Deque<State<NFAEdge_v1>> nfas, String input) throws IllegalStateException {
-		int closingParenIdx = findClosing(index, L_PAREN, R_PAREN, input);
-		if (closingParenIdx == -1) {
-			throw new IllegalStateException("Parentheses are not closed properly");
+		switch (ch) {
+		case ALTERATION:
+		case CLOSURE:
+		case L_PAREN:
+		case R_PAREN:
+		case L_SET:
+		case R_SET:
+		case PLUS:
+		case QUESTION_MARK:
+			return true;
+		default:
+			return false;
 		}
-		
-		String insideParen = input.substring(index +1, closingParenIdx);
-		State<NFAEdge_v1> insideNFA = construct(0, insideParen.length(), insideParen, new LinkedList<>());
+	}
+
+	private int constructParentheses(int index, Deque<State> nfas, String input) throws IllegalStateException {
+		int closingParenIdx = findClosing(index, L_PAREN, R_PAREN, input);
+		String insideParen = input.substring(index + 1, closingParenIdx);
+		State insideNFA = construct(0, insideParen.length(), insideParen, new LinkedList<>());
 		nfas.add(insideNFA);
 		return closingParenIdx - index;
 	}
-	
 
-	private State<NFAEdge_v1> combineAll(Deque<State<NFAEdge_v1>> nfas) throws NoSuchElementException {
+	private int constructAlternation(int startIndex, Deque<State> nfas, String input) {
+		String afterAlternation = input.substring(startIndex + 1);
+		State rightPart = construct(0, afterAlternation.length(), afterAlternation, new LinkedList<>());
+		State leftPart = combineAll(nfas);
+		State alternatedNFA = addAlternation(leftPart, rightPart);
+		nfas.add(alternatedNFA);
+		return afterAlternation.length();
+	}
+
+	private State addAlternation(State firstNFA, State secondNFA) {
+		State newStart = StateFactory.create(Type.NFA, id++, false);
+		State newEnd = StateFactory.create(Type.NFA, id++, true);
+		State firstNFAEnd = getEnd(firstNFA).setIsFinal(false);
+		State secondNFAEnd = getEnd(secondNFA).setIsFinal(false);
+
+		Edge toFirstNFA = EdgeFactory.EMPTY_TRANSITION(newStart, firstNFA);
+		Edge toSecondNFA = EdgeFactory.EMPTY_TRANSITION(newStart, secondNFA);
+		Edge firstNFAtoNewEnd = EdgeFactory.EMPTY_TRANSITION(firstNFAEnd, newEnd);
+		Edge secondNFAtoNewEnd = EdgeFactory.EMPTY_TRANSITION(secondNFAEnd, newEnd);
+
+		newStart.addEdge(toFirstNFA);
+		newStart.addEdge(toSecondNFA);
+		firstNFAEnd.addEdge(firstNFAtoNewEnd);
+		secondNFAEnd.addEdge(secondNFAtoNewEnd);
+
+		return newStart;
+	}
+
+	private void constructClosure(Deque<State> nfas) {
+		State mostRecent = nfas.removeLast();
+		State closuredRecent = addClosure(mostRecent);
+		nfas.addLast(closuredRecent);
+	}
+
+	private void constructQuestionMark(Deque<State> nfas) {
+		State mostRecent = nfas.removeLast();
+		State closuredRecent = addQuestionMark(mostRecent);
+		nfas.addLast(closuredRecent);
+	}
+
+	private void constructPlus(Deque<State> nfas) {
+		State mostRecent = nfas.removeLast();
+		State closuredRecent = addPlus(mostRecent);
+		nfas.addLast(closuredRecent);
+	}
+
+	private State addQuestionMark(State nfa) {
+		State nfaEnd = getEnd(nfa).setIsFinal(false);
+		State newStart = StateFactory.create(Type.NFA, id++, false);
+		State newEnd = StateFactory.create(Type.NFA, id++, true);
+
+		Edge startToNFA = EdgeFactory.EMPTY_TRANSITION(newStart, nfa);
+		Edge startToEnd = EdgeFactory.EMPTY_TRANSITION(newStart, newEnd);
+		Edge nfaToEnd = EdgeFactory.EMPTY_TRANSITION(nfaEnd, newEnd);
+
+		newStart.addEdge(startToNFA);
+		newStart.addEdge(startToEnd);
+		nfaEnd.addEdge(nfaToEnd);
+		return newStart;
+	}
+
+	private State addPlus(State nfa) {
+		State nfaEnd = getEnd(nfa).setIsFinal(false);
+		State newEnd = StateFactory.create(Type.NFA, id++, true);
+
+		Edge nfaToEnd = EdgeFactory.EMPTY_TRANSITION(nfaEnd, newEnd);
+		Edge nfaToStartNFA = EdgeFactory.EMPTY_TRANSITION(nfaEnd, nfa);
+
+		nfaEnd.addEdge(nfaToEnd);
+		nfaEnd.addEdge(nfaToStartNFA);
+		return nfa;
+	}
+
+	private State combineAll(Deque<State> nfas) throws NoSuchElementException {
 		while (nfas.size() > 1) {
-			State<NFAEdge_v1> secondNFA = nfas.removeLast();
-			State<NFAEdge_v1> firstNFA = nfas.removeLast();
-			State<NFAEdge_v1> combined = combine(firstNFA, secondNFA);
-			
-			nfas.addLast(combined);
+			State secondNFA = nfas.removeLast();
+			State firstNFA = nfas.removeLast();
+			nfas.addLast(combine(firstNFA, secondNFA));
 		}
 		return nfas.remove();
 	}
-	
-	/*
-	 * Combines the end of the first NFA and removing the final state of it 
-	 * to connect to start of the second NFA.
-	 * 
-	 * Adds an empty transition between the two
-	 */
-	private State<NFAEdge_v1> combine(State<NFAEdge_v1> firstNFA, State<NFAEdge_v1> secondNFA) {
-		State<NFAEdge_v1> firstEndHalf = getEnd(firstNFA).changeToFinal(false);
-		NFAEdge_v1 emptyTransitionEdge = NFAEdge_v1.EMPTY_TRANSITION(firstEndHalf, secondNFA);
-		firstEndHalf.add(emptyTransitionEdge);
+
+	// Combines two nfs together, first will start, second will end
+	private State combine(State firstNFA, State secondNFA) {
+		State firstEndHalf = getEnd(firstNFA).setIsFinal(false);
+		Edge emptyTransitionEdge = EdgeFactory.EMPTY_TRANSITION(firstEndHalf, secondNFA);
+		firstEndHalf.addEdge(emptyTransitionEdge);
 		return firstNFA;
 	}
-	
-	//finish later
-	private int constructSet(int index, Deque<State<NFAEdge_v1>> nfas, String input) {
-		//int closingSetIdx = findClosing(index, L_SET, R_SET, input);
 
-		return Integer.MIN_VALUE;
+	private int constructSet(int index, Deque<State> nfas, String input) {
+		// int closingSetIdx = findClosing(index, L_SET, R_SET, input);
+		throw new UnsupportedOperationException("NEED TO IMPLEMENT LATER");
 	}
-	
-	private void constructSingleCharNFA(char ch, Deque<State<NFAEdge_v1>> nfas) {
-		nfas.add(singleCharNFA(ch));
+
+	private void constructSingleCharNFA(char ch, Deque<State> nfas) {
+		nfas.add(create(ch));
 	}
-	
+
 	/*
 	 * Finds the index where the closing char is
 	 * 
@@ -232,8 +201,8 @@ public class NFAConverter implements Convertible<State<NFAEdge_v1>, String>, Pri
 	protected static int findClosing(int startIndex, char open, char closing, String input) {
 		int count = 0;
 		int index = startIndex;
-		
-		//if count is ever less than 1, the input is incorrect
+
+		// if count is ever less than 1, the input is incorrect
 		while (index < input.length() && count >= 0) {
 			char currCh = input.charAt(index);
 			if (currCh == open) {
@@ -246,101 +215,47 @@ public class NFAConverter implements Convertible<State<NFAEdge_v1>, String>, Pri
 			}
 			index++;
 		}
-		
+
+		//if -1, couldn't find closing symbol
 		return count == 0 ? index : -1;
 	}
-	
-	private State<NFAEdge_v1> addClosure(State<NFAEdge_v1> nfa) {
-		State<NFAEdge_v1> nfaEnd = getEnd(nfa).changeToFinal(false);
-		NFAState_v1 newStart = createState(false);
-		NFAState_v1 newEnd = createState(true);
-		
-		NFAEdge_v1 startToNFA = NFAEdge_v1.EMPTY_TRANSITION(newStart, nfa); // new start -> start of nfa
-		NFAEdge_v1 startToEnd = NFAEdge_v1.EMPTY_TRANSITION(newStart, newEnd); // new start -> new end
-		NFAEdge_v1 nfaToEnd = NFAEdge_v1.EMPTY_TRANSITION(nfaEnd, newEnd); // end of nfa -> new end
-		NFAEdge_v1 nfaEndToNFA = NFAEdge_v1.EMPTY_TRANSITION(nfaEnd, nfa); // end of nfa -> start of nfa
-		
-		newStart.add(startToNFA);
-		newStart.add(startToEnd);
-		nfaEnd.add(nfaToEnd);
-		nfaEnd.add(nfaEndToNFA);
-		
+
+	private State addClosure(State nfa) {
+		State nfaEnd = getEnd(nfa).setIsFinal(false);
+		State newStart = StateFactory.create(Type.NFA, id++, false);
+		State newEnd = StateFactory.create(Type.NFA, id++, true);
+
+		Edge startToNFA = EdgeFactory.EMPTY_TRANSITION(newStart, nfa);
+		Edge startToEnd = EdgeFactory.EMPTY_TRANSITION(newStart, newEnd);
+		Edge nfaToEnd = EdgeFactory.EMPTY_TRANSITION(nfaEnd, newEnd);
+		Edge nfaEndToNFA = EdgeFactory.EMPTY_TRANSITION(nfaEnd, nfa);
+
+		newStart.addEdge(startToNFA);
+		newStart.addEdge(startToEnd);
+		nfaEnd.addEdge(nfaToEnd);
+		nfaEnd.addEdge(nfaEndToNFA);
+
 		return newStart;
 	}
-	
-	/*
-	 * Creates an NFA with 2 states having a transition of the given chars
-	 * 
-	 * Ex:  S0 		--> 		S1
-	 * 			transitions
-	 */
-	private NFAState_v1 create(Character[] transitions) {
-		Set<Character> transitionSet = new HashSet<Character>(Arrays.asList(transitions));
-		NFAState_v1 start = createState(false);
-		NFAState_v1 end = createState(true);
-		NFAEdge_v1 edge = new NFAEdge_v1(start, end, transitionSet);
-		start.add(edge);
+
+	private State create(Character... transitions) {
+		State start = StateFactory.create(Type.NFA, id++, false);
+		State end = StateFactory.create(Type.NFA, id++, true);
+		Edge edge = EdgeFactory.create(Type.NFA, start, end, transitions);
+		start.addEdge(edge);
 		return start;
 	}
-	
-	private NFAState_v1 singleCharNFA(char ch) {
-		return create(new Character[] {ch});
-	}
-	
-	
-	/*
-	 * Assumes there is only 1 end state and there is a valid path from the first edge
-	 * of each State
-	 */
-	private State<NFAEdge_v1> getEnd(State<NFAEdge_v1> start) {
-		State<NFAEdge_v1> curr = start;
+
+	// NFA should be constructed to only have 1 final state in the entire graph
+	private State getEnd(State start) {
+		State curr = start;
 		while (!curr.getEdges().isEmpty()) {
-			curr = curr.getEdges().get(0).next;
+			curr = curr.getEdges().get(0).getNext();
 		}
 		return curr;
 	}
 
 	public String toString() {
-		return "Regular Expression to NFA converter";
-	}
-	
-	
-	/*
-	 * BFS representation 
-	 */
-	@Override
-	public void print(State<NFAEdge_v1> input) {
-		Set<State<NFAEdge_v1>> seen = new HashSet<>();
-		Queue<State<NFAEdge_v1>> nodes = new LinkedList<>();
-		nodes.add(input);
-		while (!nodes.isEmpty()) {
-			State<NFAEdge_v1> node = nodes.remove();
-			if (!seen.contains(node)) {
-				System.out.println(node.toString());
-				for (NFAEdge_v1 edge : node.getEdges()) {
-					System.out.println("\t" + edge.toString());
-					nodes.add(edge.getNext());
-				}
-				seen.add(node);
-			}
-		}	
-	}
-	
-	/*
-	 * Accepts chars that are only printable
-	 */
-	public static boolean isPrintable(char ch) {
-		return ch > 31 && ch < 127;
-	}
-		
-	public static void main(String[] args) {
-		//String regex = "t(b(c|d))*|a|c*";
-		String regex = "abc|bc|ad";
-		//String regex = "a(b|c)*";
-		NFAConverter nfaConverter = new NFAConverter();
-		//NFAConverter nfaConv2 = new NFAConverter();
-		State<NFAEdge_v1> nfa = nfaConverter.convert(regex);
-		nfaConverter.print(nfa);
-		//nfaConv2.print(nfaConv2.convert(regex));
+		return "Regular Expression to NFA";
 	}
 }
