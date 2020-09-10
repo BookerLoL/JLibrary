@@ -7,6 +7,7 @@
 # Todo list
 - 9/7/2020, Want to add An Incremental Algorithm (W) for creating a Minimized DFA, want to add [] regex option
     - https://www.cs.swan.ac.uk/cie08/cie2008-local.pdf#page=13 
+    - http://www.numdam.org/article/ITA_2014__48_2_173_0.pdf
 
 # Updates
 - 9/7/2020, refactored for readability, added a factories, utility, and tester class; updated package name to **scanner**
