@@ -1,4 +1,0 @@
-# Segmenters 
-
-## Currently
-- MaxMatch
