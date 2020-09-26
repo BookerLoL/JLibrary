@@ -5,7 +5,7 @@ import main.util.RandomEx;
 
 public class ArraySparseArrayTester {
 	
-	
+	//Not complete
 	public static void main(String[] args) {
 		int max = 10, min = -10;
 		int maxRow = 100, maxCol = 100;
