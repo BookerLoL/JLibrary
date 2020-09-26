@@ -1,5 +1,4 @@
-package similarity_metrics;
-
+package main.util.metrics;
 import java.util.HashMap;
 import java.util.Map;
 

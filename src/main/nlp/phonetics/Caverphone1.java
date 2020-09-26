@@ -1,5 +1,8 @@
 package main.nlp.phonetics;
 
+/*
+ * Unfinished
+ */
 public class Caverphone1 extends Phonetizer {
 	private static final int MAX_LENGTH = 6;
 	private static final String SIX_ONES = "111111";

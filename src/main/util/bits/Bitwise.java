@@ -52,4 +52,21 @@ public class Bitwise {
 	public static int isolateRightMostZeroBit(int num) {
 		return ~num & num + 1;
 	}
+
+	public static int getMaskBits(int fromMinBitIndex, int toMaxBitIndex) {
+		if (toMaxBitIndex > 31 || fromMinBitIndex < 0) {
+			throw new IllegalArgumentException("min bit index has to be >= 0 and max bit index <= 31, min bit index: "
+					+ fromMinBitIndex + "\tmax bit index: " + toMaxBitIndex);
+		}
+
+		if (fromMinBitIndex > toMaxBitIndex) { // swap if bad input
+			int temp = fromMinBitIndex;
+			fromMinBitIndex = toMaxBitIndex;
+			toMaxBitIndex = temp;
+		}
+
+		// left side of bit mask + bit mask + right side of bit max
+		return Integer.valueOf("0".repeat(31 - toMaxBitIndex) + "1".repeat(toMaxBitIndex - fromMinBitIndex)
+				+ "0".repeat(fromMinBitIndex), 2);
+	}
 }

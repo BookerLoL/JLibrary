@@ -1,3 +1,4 @@
+package main.util.metrics;
 //https://statisticaloddsandends.wordpress.com/2019/09/11/what-is-jaro-jaro-winkler-similarity/
 public class JaroWrinklerSimilarity {
 	public static double distance(String x, String y, double scalingFactor) {

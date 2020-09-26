@@ -312,7 +312,7 @@ public class BTree<T extends Comparable<? super T>> {
 		test4();
 	}
 
-	private static void test6() {
+	public static void test6() {
 		System.out.println("Testing with ORDER 6");
 		BTree<Integer> tree = new BTree<Integer>(6);
 		Integer[] nums = { 50, 150, 125, 100, 75, 25 };
@@ -321,7 +321,7 @@ public class BTree<T extends Comparable<? super T>> {
 		System.out.println(nums.length);
 	}
 
-	private static void test5() {
+	public static void test5() {
 		System.out.println("Testing with ORDER 5");
 		BTree<Integer> tree = new BTree<Integer>(5);
 		// Integer[] nums = { 50, 150, 125, 25, 75, 10, 60, 35, 55, 65, 70, 175, 200,
@@ -344,7 +344,7 @@ public class BTree<T extends Comparable<? super T>> {
 		System.out.println(tree.size);
 	}
 
-	private static void test4() {
+	public static void test4() {
 		System.out.println("Testing with ORDER 4");
 		BTree<Integer> tree = new BTree<Integer>(4);
 		Integer[] nums = { 50, 150, 125, 25, 75, 10, 60, 35, 55, 65, 70, 175, 200, 100, 115, 110 };
@@ -362,7 +362,7 @@ public class BTree<T extends Comparable<? super T>> {
 		System.out.println(tree.size);
 	}
 
-	private static void test3() {
+	public static void test3() {
 		System.out.println("Testing with ORDER 3");
 		BTree<Integer> tree = new BTree<Integer>(3);
 		Integer[] nums = { 50, 150, 125, 25, 75, 10, 60, 35, 55, 65, 70, 175, 200, 100, 115, 110 };
@@ -371,7 +371,7 @@ public class BTree<T extends Comparable<? super T>> {
 		System.out.println(nums.length);
 	}
 
-	private static void test4small() {
+	public static void test4small() {
 		System.out.println("Testing with ORDER 4");
 		BTree<Integer> tree = new BTree<Integer>(4);
 		Integer[] nums = { 10, 20, 30, 40, 50 };

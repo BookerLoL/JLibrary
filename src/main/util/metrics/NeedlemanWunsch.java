@@ -1,5 +1,4 @@
-package similarity_metrics;
-
+package main.util.metrics;
 /*
  * For Strings
  * 

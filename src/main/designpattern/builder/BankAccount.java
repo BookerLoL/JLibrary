@@ -1,10 +1,15 @@
 package main.designpattern.builder;
 
 public class BankAccount {
+	@SuppressWarnings("unused")
 	private long accountNumber;
+	@SuppressWarnings("unused")
 	private String owner;
+	@SuppressWarnings("unused")
 	private String branch;
+	@SuppressWarnings("unused")
 	private double balance;
+	@SuppressWarnings("unused")
 	private double interestRate;
 
 	public static class Builder {

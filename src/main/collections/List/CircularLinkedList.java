@@ -196,7 +196,7 @@ public class CircularLinkedList<E> extends AbstractList<E> implements Deque<E>, 
 		return maxCapacity;
 	}
 
-	protected boolean isLimited() {
+	public boolean isLimited() {
 		return isLimited;
 	}
 

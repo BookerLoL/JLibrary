@@ -450,7 +450,7 @@ public class AdjacencyListGraph {
 		System.out.println(graph.allTopologicalSort());
 	}
 
-	private static AdjacencyListGraph undirected1() {
+	public static AdjacencyListGraph undirected1() {
 		AdjacencyListGraph graph = new AdjacencyListGraph(6, false);
 		graph.addEdge(0, 1, 1.0);
 		graph.addEdge(0, 2, 3.0);
@@ -463,7 +463,7 @@ public class AdjacencyListGraph {
 		return graph;
 	}
 
-	private static AdjacencyListGraph undirected2() {
+	public static AdjacencyListGraph undirected2() {
 		AdjacencyListGraph graph = new AdjacencyListGraph(4, false);
 		graph.addEdge(0, 1, DEFAULT_WEIGHT);
 		graph.addEdge(1, 2, DEFAULT_WEIGHT);
@@ -473,7 +473,7 @@ public class AdjacencyListGraph {
 		return graph;
 	}
 
-	private static AdjacencyListGraph dag1() {
+	public static AdjacencyListGraph dag1() {
 		AdjacencyListGraph graph = new AdjacencyListGraph(6, true);
 		graph.addEdge(5, 2);
 		graph.addEdge(5, 0);

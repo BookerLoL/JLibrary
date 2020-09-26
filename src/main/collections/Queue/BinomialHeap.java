@@ -21,6 +21,7 @@ public class BinomialHeap<T extends Comparable<T>> {
 			return data;
 		}
 
+		@SuppressWarnings("unused")
 		public Node getParent() {
 			return parent;
 		}

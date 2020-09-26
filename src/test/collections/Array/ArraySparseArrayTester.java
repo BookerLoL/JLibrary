@@ -1,7 +1,6 @@
 package test.collections.Array;
 
 import main.collections.Array.ArraySparseArray;
-import main.util.Memory;
 import main.util.RandomEx;
 
 public class ArraySparseArrayTester {

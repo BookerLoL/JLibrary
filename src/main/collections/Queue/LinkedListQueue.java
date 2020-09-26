@@ -2,6 +2,7 @@ package main.collections.Queue;
 import java.util.AbstractQueue;
 import java.util.Iterator;
 
+import main.collections.Array.CircularArray;
 import main.collections.List.CircularLinkedList;
 
 public class LinkedListQueue<E> extends AbstractQueue<E> {

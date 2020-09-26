@@ -2,6 +2,8 @@ package main.collections.Tree;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import main.collections.Queue.LinkedListQueue;
+
 public class BinarySearchTree<T extends Comparable<T>> {
 	private class TreeNode {
 		protected T data;

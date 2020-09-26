@@ -1,4 +1,4 @@
-
+package main.util.metrics;
 public class JaroSimilarity {
 	public static double distance(String x, String y) {
 		if (x.equals(y)) {

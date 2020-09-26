@@ -1,5 +1,7 @@
 package main.collections.Tree;
 
+import main.collections.Queue.LinkedListQueue;
+
 public class DiamondTree {
 	public static class Node {
 		int data;

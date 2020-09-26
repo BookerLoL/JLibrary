@@ -17,9 +17,9 @@ public class Tester {
 		State dfa = dfaConv.convert(nfa);
 		MinDFAConverter1 minDfaConv1 = new MinDFAConverter1();
 		State minDfa1 = minDfaConv1.convert(dfa);
-		//System.out.println("\n\n\n NEXT PRINT \n\n\n");
 		MinDFAConverter2 minDfaConv2 = new MinDFAConverter2();
 		State minDfa2 = minDfaConv2.convert(nfa);
 		Converter.print(minDfa2);
+		Converter.print(minDfa1);
 	}
 }

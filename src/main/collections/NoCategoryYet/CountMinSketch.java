@@ -1,3 +1,5 @@
+package main.collections.NoCategoryYet;
+
 import java.util.HashMap;
 import java.util.Random;
 

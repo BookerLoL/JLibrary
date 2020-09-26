@@ -1,7 +1,6 @@
 package main.collections.List;
-import java.util.AbstractSequentialList;
+
 import java.util.Collection;
-import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -12,7 +11,7 @@ import java.util.NoSuchElementException;
  * 
  * Singly linked list
  */
-public class LinkedList<E> implements List<E>, Cloneable {
+public class LinkedList<E> implements List<E> {
 	private static class Node<E> {
 		private E data;
 		private Node<E> next;
@@ -199,21 +198,81 @@ public class LinkedList<E> implements List<E>, Cloneable {
 	public ListIterator<E> listIterator(int index) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Object clone() {
 		LinkedList<E> clone = null;
 		try {
-			clone = (LinkedList<E>) super.clone();		
+			clone = (LinkedList<E>) super.clone();
 			clone.head = null;
 			clone.size = 0;
 			for (Node<E> temp = head; temp != null; temp = temp.next) {
 				clone.add(temp.data);
 			}
-		
+
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
 		return clone;
+	}
+
+	@Override
+	public Object[] toArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends E> c) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean addAll(int index, Collection<? extends E> c) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int lastIndexOf(Object o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public ListIterator<E> listIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<E> subList(int fromIndex, int toIndex) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -19,7 +19,7 @@ import java.util.RandomAccess;
  * Modifying the CircularArray will cause the iterator to have side effects
  */
 public class CircularArray<E> extends AbstractQueue<E> implements List<E>, RandomAccess, Cloneable {
-	protected static final int DEFAULT_CAPACITY = 10;
+	public static final int DEFAULT_CAPACITY = 10;
 	private static final int CAPACITY_MULTIPLIER = 2;
 	private E[] ary;
 	private int capacity;
@@ -183,7 +183,7 @@ public class CircularArray<E> extends AbstractQueue<E> implements List<E>, Rando
 		return count == 0;
 	}
 
-	protected boolean isFull() {
+	public boolean isFull() {
 		return count == capacity;
 	}
 

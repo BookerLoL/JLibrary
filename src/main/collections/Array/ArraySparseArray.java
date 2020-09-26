@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import main.util.MemoryGrowth;
+import main.util.Memory;
 
 /**
  * 
@@ -89,7 +89,7 @@ public class ArraySparseArray<T> {
 	}
 
 	private void grow() {
-		sparseMatrix = Arrays.copyOf(sparseMatrix, MemoryGrowth.doubleSize(sparseMatrix.length));
+		sparseMatrix = Arrays.copyOf(sparseMatrix, Memory.doubleSize(sparseMatrix.length));
 	}
 
 	private void shiftItemsRight(int index) {

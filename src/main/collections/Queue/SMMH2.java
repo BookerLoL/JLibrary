@@ -3,13 +3,15 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 //Symmetric Min-Max Heap
+/*
+ * Need to fix the remove min and remove max functions
+ */
 public class SMMH2<T extends Comparable<T>> {
 	Comparator<T> comp;
 	T[] heap;
 	int count;
 	boolean isLimited;
 
-	@SuppressWarnings("unchecked")
 	public SMMH2(int initialCapacity) {
 		this(initialCapacity, Comparator.naturalOrder(), false);
 	}
@@ -53,11 +55,11 @@ public class SMMH2<T extends Comparable<T>> {
 	}
 
 	private boolean hasLeftSibling(int pos) {
-		return pos <= count && isRight(pos) && parent(pos) == parent(pos - 1);
+		return pos <= count && isRight(pos) && parent(pos) == parent(pos - 1) && heap[pos - 1] != null;
 	}
 	
 	private boolean hasRightSibling(int pos) {
-		return pos + 1 <= count && isLeft(pos) && parent(pos) == parent(pos + 1);
+		return pos + 1 <= count && isLeft(pos) && parent(pos) == parent(pos + 1) && heap[pos + 1] != null;
 	}
 
 	private int siblingSwap(int index) {
@@ -211,5 +213,8 @@ public class SMMH2<T extends Comparable<T>> {
 		Integer[] ary = { 5, 92, 15, 63, 7, 49, 21, 31, 25, 36, 13, 23, 26, 42 };
 		Arrays.asList(ary).forEach(num -> heap.insert(num));
 		System.out.println(heap);
+		while (!heap.isEmpty()) {
+			System.out.println(heap.removeMax());
+		}
 	}
 }

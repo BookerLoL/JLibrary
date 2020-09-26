@@ -1,5 +1,7 @@
 package main.collections.Tree;
 
+import main.collections.Queue.LinkedListQueue;
+
 public class BinaryTree<T> {
 	protected class TreeNode {
 		protected T data;
