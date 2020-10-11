@@ -3,6 +3,8 @@ package main.util;
 /**
  * A class to help with keep track of elapsed time like a stopwatch. The class
  * allows a little bit of formatting for displaying time.
+ * <p>
+ * Useful for benchmarking code
  * 
  * <p>
  * As of currently, if the accumulated time exceeds {@code Long.MAX_VALUE} then

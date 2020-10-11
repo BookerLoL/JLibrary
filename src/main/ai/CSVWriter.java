@@ -66,7 +66,6 @@ public class CSVWriter {
 		return sb.toString();
 	}
 
-	// Use this if you are going to overwrite an existing file for the first line
 	public void writeNewLine() {
 		try (BufferedWriter bf = new BufferedWriter(new FileWriter(new File(filename), overwrite))) {
 			bf.newLine();
@@ -90,6 +89,7 @@ public class CSVWriter {
 	public static void main(String[] args) {
 		CSVWriter csv = new CSVWriter("test2.txt");
 		csv.writeRow("name", "age", "height");
+		csv.writeRow("ethan", "21", "174");
 		csv.writeRow("ethan", "21", "174");
 	}
 }

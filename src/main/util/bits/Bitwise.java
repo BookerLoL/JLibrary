@@ -1,6 +1,18 @@
 package main.util.bits;
 
+/**
+ * This is helper class to manipulate bits. 
+ * These are all essentially wrapper functions to provide users who don't know 
+ * bit manipulation an API to use. 
+ * 
+ * @author Ethan
+ * @version 1.0
+ */
 public class Bitwise {
+	public static boolean isEven(int number) {
+		return (number & 1) == 0;
+	}
+	
 	public static int and(int left, int right) {
 		return left & right;
 	}
