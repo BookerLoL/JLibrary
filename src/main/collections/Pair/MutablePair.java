@@ -1,6 +1,6 @@
 package main.collections.Pair;
 
-public class MutablePair<K extends Comparable<? super K>, V extends Comparable<? super V>> extends Pair<K, V> {
+public class MutablePair<K, V> extends Pair<K, V> {
 	public MutablePair() {
 		super(null, null);
 	}
@@ -19,6 +19,7 @@ public class MutablePair<K extends Comparable<? super K>, V extends Comparable<?
 		return val;
 	}
 
+	@Override
 	public K setKey(K newKey) {
 		K prev = key;
 		key = newKey;
@@ -32,7 +33,7 @@ public class MutablePair<K extends Comparable<? super K>, V extends Comparable<?
 		return prev;
 	}
 
-	public  static <K extends Comparable<? super K>, V extends Comparable<? super V>> MutablePair<K, V> make(K key, V value) {
+	public static <K, V> MutablePair<K, V> make(K key, V value) {
 		return new MutablePair<>(key, value);
 	}
 }

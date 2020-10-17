@@ -49,6 +49,9 @@ public class ImageUpSampler {
 		return BilinearInterpolation(image, scale);
 	}
 
+	/*
+	 * Incomplete, need to finish later.
+	 */
 	public static Image BilinearInterpolation(Image image, int scaleWidth, int scaleHeight)
 			throws IllegalArgumentException {
 		Image neighbors = nearestNeighborInterpolation(image, scaleWidth, scaleHeight);

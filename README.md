@@ -1,5 +1,6 @@
 # JLibrary
 - This is an on-going project to serve as educational purposes to show examples of implementing concepts.
+- Not only for educational purposes, but hopefully it can provide some useful extensions.
 - Concepts that I hope to cover only in Java
     - Natural Language Processing
     - Compilers

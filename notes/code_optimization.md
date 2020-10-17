@@ -6,6 +6,8 @@
 ## What to think about when wanting to optimize
 1) Write clean, concise, and short code that is understandable
     - Unless performance is an issue, this should be the number 1 priority
+    - You want to avoid premature optimization since you won't know if that is the problem or not.
+    - If there are two simple solutions, choose the better performing solution
 2) Use profilers to check the performance of your code to find bottlenecks
     - Don't optimize code unless you need to
 3) Look at the bottleneck areas (Always look at the largest bottlenecks first)
@@ -17,6 +19,7 @@
     - **Code is too abstracted**
         - You don't have to make everything an object then access the contents through methods. 
         - That's why design patterns and simplifying design can improve the performance.
+        - Generally less amount of code that is well written will often outperform large amounts of code that is well written.
     - **Poorly selected/use of functions**
         - Some functions are very flexible but at the cost of increased performance or they do extra work that you don't need. 
     - **Redoing/doing uncessary work**
@@ -31,11 +34,34 @@
         - Language related stuff
             - StringBuilder vs Concatenating (when to use which one)
             - garbage collector
-        - other stuff
+        - Might not be much of your code but rather the data base, system management, JVM bug, etc
 4) Look at the data types you are working with, data types have faster operations than others
 5) Check possible compilation settings
 6) Try to fix up the issues
 7) Try different approaches that are within reason and see which works better in practice. 
+
+
+## Performance Testing
+- JIT and GC make it difficult to test correctly.
+    - They perform optimizations on your code that requires workarounds to get any type of test correct.
+- **Microbenchmarks**
+    - Testing a small unit for performance, such as using testing an implementation change
+    - Java Microbenchmark Harness framekwork is good for microbenchmarks
+- **Macrobenchmarks**
+    - Testing application for performance
+
+## Measurements Metrics
+- If you don't take into account for warmup period to allow JVM to optimize the code, results may vary.
+- **Throughput** (requests per second, transactions per second, operations per section, etc)
+    - Amount of work within period of time
+    - Usually measured after warmup period
+- **Batch time / elapsed time**
+    - How long it takes to finish a task
+    - May require warmup period to reach peak performance
+- **Response Time**
+    - Elapsed time between a request and a response
+    - Can report as average or percentile 
+        - best to do both in case of outliers
 
 ## Optimization Technqiues
 - **String Concatenation**
@@ -96,3 +122,7 @@ These are some resources that can help you understand how to optimize Java code 
 - https://docs.oracle.com/javame/8.1/me-dev-guide/optimization.htm  
 - https://docs.oracle.com/cd/E13150_01/jrockit_jvm/jrockit/geninfo/diagnos/underst_jit.html
 - https://docs.oracle.com/javase/9/jrockit-hotspot/compilation-optimization.htm#JRHMG119
+
+
+## Todo 
+- pg 46

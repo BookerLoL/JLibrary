@@ -1,8 +1,8 @@
 package main.collections.Pair;
+
 import java.util.Map;
 
-public abstract class Pair<K extends Comparable<? super K>, V extends Comparable<? super V>>
-		implements Map.Entry<K, V>, Comparable<Pair<K, V>> {
+public abstract class Pair<K, V> implements Map.Entry<K, V> {
 	protected K key;
 	protected V val;
 
@@ -13,15 +13,9 @@ public abstract class Pair<K extends Comparable<? super K>, V extends Comparable
 
 	public abstract K getKey();
 	public abstract V getValue();
+	public abstract K setKey(K newKey);
 
-	@Override
-	public int compareTo(Pair<K, V> o) {
-		// Doesn't check for handle null cases
-		int keyCompare = key.compareTo(o.key);
-		return keyCompare != 0 ? keyCompare : val.compareTo(o.val);
-	}
-	
-	public  static <K extends Comparable<? super K>, V extends Comparable<? super V>> Pair<K, V> make(K key, V value) {
+	public static <K, V> Pair<K, V> make(K key, V value) {
 		return new ImmutablePair<>(key, value);
 	}
 }
