@@ -66,6 +66,10 @@ public class SliderToggle extends Parent {
 		SQUARE, CIRCLE;
 	}
 
+	public static enum DefaultStyle {
+
+	}
+
 	private static enum Content {
 		SLIDER(0), TOGGLE(1), TEXT1(2), TEXT2(3);
 
@@ -115,8 +119,20 @@ public class SliderToggle extends Parent {
 		public Color getSliderColor(boolean key) {
 			return key ? sliderFillColors.getKey() : sliderFillColors.getValue();
 		}
+
+		public Duration getFillDuration(Component component) {
+			if (component == Component.SLIDER) {
+				return sliderFT.getDuration();
+			} else {
+				return toggleFT.getDuration();
+			}
+		}
 	}
 
+	/*
+	 * Technically we don't need to use Math.min if we swap sizes first but in case
+	 * this ever changes, this won't break anything.
+	 */
 	private class StateModel {
 		private boolean isRunning;
 		private double width;
@@ -144,10 +160,6 @@ public class SliderToggle extends Parent {
 			baseSize = Math.min(width, height);
 		}
 
-		/*
-		 * Technically we don't need to use Math.min if we swap sizes first but in case
-		 * this ever changes, this won't break anything.
-		 */
 		private void swapSizes() {
 			if (height > width) {
 				double temp = height;
@@ -158,7 +170,7 @@ public class SliderToggle extends Parent {
 	}
 
 	public static final double DEFAULT_WIDTH = 100.0;
-	public static final double SECONDS = 0.5;
+	public static final double DEFAULT_SECONDS = 0.5;
 
 	// We are using models to simply break up the code to make it more readable.
 	private ComponentsModel model;
@@ -169,16 +181,16 @@ public class SliderToggle extends Parent {
 		this(DEFAULT_WIDTH);
 	}
 
-	public SliderToggle(ToggleStyle toggleStyle, SliderStyle sliderStyle) {
-		this(DEFAULT_WIDTH, DEFAULT_WIDTH, toggleStyle, sliderStyle);
-	}
-
 	public SliderToggle(double width) {
 		this(width, width / 2);
 	}
 
 	public SliderToggle(double width, double height) {
 		this(width, height, ToggleStyle.CIRCLE, SliderStyle.ROUNDED);
+	}
+
+	public SliderToggle(ToggleStyle toggleStyle, SliderStyle sliderStyle) {
+		this(DEFAULT_WIDTH, DEFAULT_WIDTH, toggleStyle, sliderStyle);
 	}
 
 	public SliderToggle(double width, double height, ToggleStyle toggleStyle, SliderStyle sliderStyle) {
@@ -192,9 +204,9 @@ public class SliderToggle extends Parent {
 		model.toggle = createToggle(toggleStyle);
 		this.getChildren().addAll(model.slider, model.toggle);
 
-		tModel.sliderFT = new FillTransition(Duration.seconds(SECONDS), model.slider);
-		tModel.toggleFT = new FillTransition(Duration.seconds(SECONDS), model.toggle);
-		tModel.toggleTT = new TranslateTransition(Duration.seconds(SECONDS), model.toggle);
+		tModel.sliderFT = new FillTransition(Duration.seconds(DEFAULT_SECONDS), model.slider);
+		tModel.toggleFT = new FillTransition(Duration.seconds(DEFAULT_SECONDS), model.toggle);
+		tModel.toggleTT = new TranslateTransition(Duration.seconds(DEFAULT_SECONDS), model.toggle);
 		tModel.transitions = new ParallelTransition(tModel.toggleTT, tModel.toggleFT, tModel.sliderFT);
 
 		state.isSelected.addListener((obs, oldV, newV) -> {
@@ -224,24 +236,25 @@ public class SliderToggle extends Parent {
 		});
 	}
 
-	/*
-	 * This function has extra checks because additional styles will be added later.
-	 */
 	private Shape createSlider(double width, double height, SliderStyle sliderStyle) {
 		Shape slider = null;
-		if (sliderStyle == SliderStyle.ROUNDED || sliderStyle == SliderStyle.CORNERS) {
-			Rectangle rectangle = new Rectangle(width, height);
-			if (sliderStyle == SliderStyle.ROUNDED) {
-				double ratio = width / height;
-				rectangle.setArcHeight(height);
-				rectangle.setArcWidth(width / ratio);
-			}
-			slider = rectangle;
+		if (sliderStyle == SliderStyle.CORNERS) {
+			slider = new Rectangle(width, height);
+		} else { // ROUND
+			Rectangle roundedRect = new Rectangle(width, height);
+			roundedRect.setArcHeight(height);
+			double ratio = width / height;
+			roundedRect.setArcWidth(width / ratio);
 		}
 		slider.setFill(tModel.getSliderColor(isSelected()));
 		return slider;
 	}
 
+	/**
+	 * Updating the slider's current width. Will readjust the toggle.
+	 * 
+	 * @param newWidth the new slider's width
+	 */
 	public void setSliderWidth(double newWidth) {
 		if (newWidth != state.width) {
 			state.setWidth(newWidth);
@@ -249,6 +262,11 @@ public class SliderToggle extends Parent {
 		}
 	}
 
+	/**
+	 * Updating the slider's current height. Will readjust the toggle.
+	 * 
+	 * @param newHeight the new slider's height
+	 */
 	public void setSliderHeight(double newHeight) {
 		if (newHeight != state.height) {
 			state.setHeight(newHeight);
@@ -263,16 +281,8 @@ public class SliderToggle extends Parent {
 		tModel.sliderFT.setShape(newSlider);
 		model.slider = newSlider;
 
-		if (model.toggleStyle == ToggleStyle.SQUARE) {
-			Square sq = (Square) model.toggle;
-			double diff = state.baseSize - sq.getWidth();
-			sq.setTranslateY(diff / 2);
-		} else { // Defautl is a circle
-			Circle circle = (Circle) model.toggle;
-			circle.setCenterX(state.baseSize / 2);
-			circle.setCenterY(state.baseSize / 2);
-		}
-		moveToggle();
+		moveToggleY();
+		moveToggleX();
 	}
 
 	private Shape createToggle(ToggleStyle toggleStyle) {
@@ -287,42 +297,69 @@ public class SliderToggle extends Parent {
 		return toggle;
 	}
 
+	/**
+	 * Switch the current toggle value and simulate the animations.
+	 */
 	public void toggle() {
 		state.isSelected.set(!state.isSelected.get());
 	}
 
-	private void moveToggle() {
+	private void moveToggleY() {
+		if (model.toggleStyle == ToggleStyle.SQUARE) {
+			Square sq = (Square) model.toggle;
+			double diff = state.baseSize - sq.getWidth();
+			sq.setTranslateY(diff / 2);
+		} else { // Default is a circle
+			Circle circle = (Circle) model.toggle;
+			circle.setCenterX(state.baseSize / 2);
+			circle.setCenterY(state.baseSize / 2);
+		}
+	}
+
+	private void moveToggleX() {
 		model.toggle.setTranslateX(getToggleTranslationX());
 	}
 
 	private double getToggleTranslationX() {
 		double transX = 0.0;
-		if (state.isSelected.get()) {
-			if (model.toggleStyle == ToggleStyle.SQUARE) {
+		if (model.toggleStyle == ToggleStyle.SQUARE) {
+			if (state.isSelected.get()) {
 				transX = model.getSliderWidth() - state.baseSize + ((state.baseSize - model.getToggleWidth()) / 2);
-			} else if (model.toggleStyle == ToggleStyle.CIRCLE) {
-				transX = model.getSliderWidth() - state.baseSize;
-			}
-		} else {
-			if (model.toggleStyle == ToggleStyle.SQUARE) {
+			} else {
 				transX = (state.baseSize - model.getToggleWidth()) / 2;
-			} else if (model.toggleStyle == ToggleStyle.CIRCLE) {
+			}
+		} else { // Default is a circle
+			if (state.isSelected.get()) {
+				transX = model.getSliderWidth() - state.baseSize;
+			} else {
 				transX = 0.0;
 			}
 		}
 		return transX;
 	}
 
+	/**
+	 * Update the current slider style to another slider style. If the same slider
+	 * style is selected then nothing happens.
+	 * 
+	 * @param sliderStyle the new slider style.
+	 */
 	public void setSliderStyle(SliderStyle sliderStyle) {
 		if (sliderStyle != model.sliderStyle) {
 			model.sliderStyle = sliderStyle;
 			getChildren().remove(Content.SLIDER.position);
 			model.slider = createSlider(model.getSliderWidth(), model.getSliderHeight(), sliderStyle);
-			tModel.sliderFT.setShape(model.slider);
 			getChildren().add(Content.SLIDER.position, model.slider);
+			tModel.sliderFT.setShape(model.slider);
 		}
 	}
 
+	/**
+	 * Update the current toggle style to another toggle style. If the same toggle
+	 * style is selected then nothing happens.
+	 * 
+	 * @param toggleStyle the new toggle style.
+	 */
 	public void setToggleStyle(ToggleStyle toggleStyle) {
 		if (toggleStyle != model.toggleStyle) {
 			model.toggleStyle = toggleStyle;
@@ -331,10 +368,18 @@ public class SliderToggle extends Parent {
 			getChildren().add(Content.TOGGLE.position, model.toggle);
 			tModel.toggleFT.setShape(model.toggle);
 			tModel.toggleTT.setNode(model.toggle);
-			moveToggle();
+			moveToggleX();
 		}
 	}
 
+	/**
+	 * Update the toggles current size by either making it larger or smaller.
+	 * Careful, the additional size is calculated differently based on the toggle
+	 * style.
+	 * 
+	 * @param additionalSize the new desired additional size added onto the current
+	 *                       size
+	 */
 	public void setToggleSize(double additionalSize) {
 		if (model.toggleStyle == ToggleStyle.SQUARE) {
 			Square sq = (Square) model.toggle;
@@ -345,10 +390,18 @@ public class SliderToggle extends Parent {
 			Circle circle = (Circle) model.toggle;
 			circle.setRadius(state.baseSize / 2 + additionalSize);
 		}
-		moveToggle();
+		moveToggleX();
 	}
 
-	public void updateFillTransition(Component component, Color color, boolean isSelected) {
+	/**
+	 * Update the current component's fill color based on whether it's selected or
+	 * not.
+	 * 
+	 * @param component  The desired component to update the fill
+	 * @param color      The new fill color
+	 * @param isSelected The fill color that will appear in that mode
+	 */
+	public void setFillTransition(Component component, Color color, boolean isSelected) {
 		if (component == Component.SLIDER) {
 			if (isSelected) {
 				tModel.sliderFillColors.setKey(color);
@@ -364,12 +417,27 @@ public class SliderToggle extends Parent {
 		}
 	}
 
-	public void updateFillTransition(Component component, Color toggleColor, Color untoggleColor) {
-		addFillTransition(component, toggleColor, untoggleColor,
-				component == Component.SLIDER ? tModel.sliderFT.getDuration() : tModel.toggleFT.getDuration());
+	/**
+	 * Update the current component's fill colors for both toggle and untoggle mode.
+	 * 
+	 * @param component     The desired component to update the fills
+	 * @param toggleColor   The new toggle fill color
+	 * @param untoggleColor The new untoggle fill color
+	 */
+	public void setFillTransition(Component component, Color toggleColor, Color untoggleColor) {
+		setFillTransition(component, toggleColor, untoggleColor, tModel.getFillDuration(component));
 	}
 
-	public void addFillTransition(Component component, Color toggleColor, Color untoggleColor, Duration duration) {
+	/**
+	 * Update the current component's fill colors for both toggle and untoggle mode
+	 * and updating the desired duration.
+	 * 
+	 * @param component     The desired component to update the fills
+	 * @param toggleColor   The new toggle fill color
+	 * @param untoggleColor The new untoggle fill color
+	 * @param duration      The new duration for the animation.
+	 */
+	public void setFillTransition(Component component, Color toggleColor, Color untoggleColor, Duration duration) {
 		if (component == Component.SLIDER) {
 			tModel.sliderFillColors = new MutablePair<>(toggleColor, untoggleColor);
 			tModel.sliderFT.setDuration(duration);
@@ -379,20 +447,44 @@ public class SliderToggle extends Parent {
 		}
 	}
 
-	public void addTranslationTransition(Duration duration) {
-		TranslateTransition tt = new TranslateTransition(duration, model.toggle);
-		tt.setToX(getToggleTranslationX());
-		tModel.transitions.getChildren().add(tt);
+	public void setTranslationTransition(Duration duration) {
+		tModel.toggleTT.setDuration(duration);
 	}
 
+	/**
+	 * Updates the current UI to an already existing default style already created.
+	 * If you do not feel like creating a good UI, using this method will help.
+	 * 
+	 * @param style The predefined default style
+	 */
+	public void setDefaultStyle(DefaultStyle style) {
+
+	}
+
+	/**
+	 * Get the current toggle value
+	 * 
+	 * @return the toggle's current value
+	 */
 	public boolean isSelected() {
 		return state.isSelected.get();
 	}
 
+	/**
+	 * Get the current toggle respective boolean value as an int
+	 * 
+	 * @return the toggle's current value
+	 */
 	public int getisSelected() {
 		return state.isSelected.get() ? 1 : 0;
 	}
 
+	/**
+	 * Get the components directly to manipulate for your own purpose.
+	 * 
+	 * @param component the desired component
+	 * @return The requested component
+	 */
 	public Shape get(Component component) {
 		if (component == Component.SLIDER) {
 			return model.slider;
