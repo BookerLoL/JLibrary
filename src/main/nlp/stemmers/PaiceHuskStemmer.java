@@ -1,33 +1,29 @@
 package main.nlp.stemmers;
+
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Paice Husk Stemmer
+/**
  * 
- * For English
+ * Paice Husk stemmer for standard English
  * 
- * https://dl.acm.org/doi/pdf/10.1145/101306.101310
+ * Source: https://dl.acm.org/doi/pdf/10.1145/101306.101310
  * 
- * Note: There are some stems that I'm unsure are right or wrong because there was no expected file was found 
- * but compared to other implementations there is a 0.25% difference in stemmed words.
+ * Source Date: January 6, 2021
  * 
- * Note: The stem text file will have this stemmer's stemmed words, but if there is a low extremely low rate you should be fine. 
- * 
- * You can also add or change rules if you need certain results.
- * 
- * You can include a lexical lookup for exceptions
- * 
+ * @author Ethan
+ * @version 1.0
+ * @apiNote Still looking for a comprehensive test file
  */
 public class PaiceHuskStemmer extends Stemmer {
 	private class Rule {
-		String suffix; 
-		boolean intactFlag; 
-		int removeAmount; 
-		String appendAfter; 
-		boolean continueFlag; 
+		String suffix;
+		boolean intactFlag;
+		int removeAmount;
+		String appendAfter;
+		boolean continueFlag;
 
 		public Rule(String ending, boolean intact, int removeAmount, String append, boolean continuation) {
 			suffix = ending;
@@ -48,26 +44,16 @@ public class PaiceHuskStemmer extends Stemmer {
 			return word.endsWith(suffix) && passesAcceptabilityConditions(word);
 		}
 
-		/*
-		 * If the first letter is a vowel, check if the stemmed word has at least length
-		 * of 2 Else, first letter is a consonant, check if stemmed word has at least
-		 * length of 3 and must contain a vowel or 'y'
-		 * 
-		 * I changed the meaning of 'y' to be a vowel if it's not the first letter of
-		 * the word and it's not following a vowel Look up "porter 2" defintion of a
-		 * vowel
-		 */
 		private boolean passesAcceptabilityConditions(String word) {
-			char firstLetter = word.charAt(0);
 			char prev = 'a';
-			if (isVowel(firstLetter, prev)) {
+			if (isRuleVowel(word.charAt(0), prev)) {
 				return (word.length() - removeAmount) + appendAfter.length() >= 2;
 			} else {
 				String newWord = removeEnding(word, removeAmount) + appendAfter;
 				if (newWord.length() >= 3) {
 					for (int i = 0; i < newWord.length(); i++) {
 						char curr = newWord.charAt(i);
-						if (isVowel(curr, prev)) {
+						if (isRuleVowel(curr, prev)) {
 							return true;
 						}
 						prev = curr;
@@ -77,7 +63,7 @@ public class PaiceHuskStemmer extends Stemmer {
 			}
 		}
 
-		private boolean isVowel(char ch, char prev) {
+		private boolean isRuleVowel(char ch, char prev) {
 			return isNormalVowel(ch) || isYVowel(ch, prev);
 		}
 
@@ -86,7 +72,7 @@ public class PaiceHuskStemmer extends Stemmer {
 		}
 
 		private boolean isNormalVowel(char ch) {
-			return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
+			return isVowel(ch, VOWELS);
 		}
 
 		public String apply(String word) {
@@ -99,7 +85,11 @@ public class PaiceHuskStemmer extends Stemmer {
 		}
 	}
 
-	private Rule[] rules = { new Rule("ia", true, 2, EMPTY, false), new Rule("a", true, 1, EMPTY, false),
+	private static final int MIN_LENGTH = 4;
+	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u' };
+	
+
+	private final Rule[] rules = { new Rule("ia", true, 2, EMPTY, false), new Rule("a", true, 1, EMPTY, false),
 			new Rule("bb", false, 1, EMPTY, false), new Rule("ytic", false, 3, "s", false),
 			new Rule("ic", false, 2, EMPTY, true), new Rule("nc", false, 1, "t", true),
 			new Rule("dd", false, 1, EMPTY, false), new Rule("ied", false, 3, "y", true),
@@ -160,7 +150,6 @@ public class PaiceHuskStemmer extends Stemmer {
 
 	private Map<Character, List<Rule>> ruleMapping;
 	private boolean isUnchanged;
-	private static final int MIN_LENGTH = 4;
 
 	public PaiceHuskStemmer() {
 		initRuleMapping();
@@ -169,17 +158,24 @@ public class PaiceHuskStemmer extends Stemmer {
 	private void initRuleMapping() {
 		ruleMapping = new HashMap<>();
 		for (Rule rule : rules) {
-			Character lastCh = getFinalLetter(rule.suffix);
-
-			if (!ruleMapping.containsKey(lastCh)) {
-				ruleMapping.put(lastCh, new LinkedList<>());
-			}
+			Character lastCh = getLastLetter(rule.suffix);
+			ruleMapping.computeIfAbsent(lastCh, k -> new ArrayList<>());
 			ruleMapping.get(lastCh).add(rule);
 		}
 	}
-	
+
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
+		if (word.length() < MIN_LENGTH) {
+			return word;
+		}
+		isUnchanged = true;
+		return goThroughRules(word).trim();
+	}
+
 	private String goThroughRules(String word) {
-		List<Rule> rules = ruleMapping.get(getFinalLetter(word));
+		List<Rule> rules = ruleMapping.get(getLastLetter(word));
 		if (rules == null) {
 			return word;
 		}
@@ -196,20 +192,15 @@ public class PaiceHuskStemmer extends Stemmer {
 		return word;
 	}
 
-	private static char getFinalLetter(String word) {
+	private char getLastLetter(String word) {
 		if (word == null || word.length() == 0) {
-			return '\0';
+			return EMPTY_CH;
 		}
 		return word.charAt(word.length() - 1);
 	}
 
 	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		if (word.length() < MIN_LENGTH) {
-			return word;
-		}
-		isUnchanged = true;
-		return goThroughRules(word).trim();
+	public Language getLanguage() {
+		return Language.ENGLISH;
 	}
 }

@@ -1,20 +1,24 @@
 package main.nlp.stemmers;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/*
- * Snowball stemmer
+/**
  * 
- * For Latin
+ * Snowball stemmer for standard Italian
  * 
- * https://snowballstem.org/otherapps/schinke/
+ * Source: https://snowballstem.org/otherapps/schinke/
  * 
+ * Source Date: January 6, 2021
+ * 
+ * @author Ethan
+ * @version 1.0
  */
 public class LatinSchinkeStemmer extends Stemmer {
-	private static final Set<String> queSuffixWords = new HashSet<>(Arrays.asList(new String[] { "quotusquisque",
+	private static final Set<String> QUE_SUFFIXES = new HashSet<>(Arrays.asList(new String[] { "quotusquisque",
 			"praetorque", "plenisque", "quandoque", "quorumque", "quarumque", "quibusque", "utribique", "contorque",
 			"peraeque", "cuiusque", "quousque", "concoque", "detorque", "extorque", "obtorque", "optorque", "retorque",
 			"attorque", "intorque", "abusque", "adaeque", "adusque", "denique", "oblique", "quisque", "quaeque",
@@ -22,27 +26,44 @@ public class LatinSchinkeStemmer extends Stemmer {
 			"recoque", "incoque", "quoque", "itaque", "absque", "apsque", "susque", "cuique", "quaque", "quique",
 			"ubique", "utique", "torque", "atque", "neque", "deque", "usque", "coque" }));
 
-	private static final String[] noun_suffixes = { "ibus", "ius", "ae", "am", "as", "em", "es", "ia", "is", "nt", "os",
+	private static final String[] NOUN_SUFFIXES = { "ibus", "ius", "ae", "am", "as", "em", "es", "ia", "is", "nt", "os",
 			"ud", "um", "us", "a", "e", "i", "o", "u" };
 
 	// even indexes are suffixes, odd are replacement values
-	private static final String[][] verb_suffixes = { { "iuntur", "erunt", "untur", "iunt", "unt" }, { "i" },
+	private static final String[][] VERB_SUFFIXES = { { "iuntur", "erunt", "untur", "iunt", "unt" }, { "i" },
 			{ "beris", "bor", "bo" }, { "bi" }, { "ero" }, { "eri" },
 			{ "mini", "ntur", "stis", "mur", "mus", "ris", "sti", "tis", "tur", "ns", "nt", "ri", "m", "r", "s", "t" },
 			{ EMPTY } };
 
-	private Map<String, String> nounForms = new HashMap<>();
-	private Map<String, String> verbForms = new HashMap<>();
+	private Map<String, String> nounForms;
+	private Map<String, String> verbForms;
 
 	public LatinSchinkeStemmer() {
+		nounForms = new HashMap<>();
+		verbForms = new HashMap<>();
 		fillDictionaries();
 	}
 
 	private void fillDictionaries() {
-		queSuffixWords.forEach(word -> {
+		QUE_SUFFIXES.forEach(word -> {
 			nounForms.put(word, word);
 			verbForms.put(word, word);
 		});
+	}
+
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
+		word = prelude(word);
+
+		if (word.endsWith("que")) {
+			word = isQueSuffixEnding(word);
+		}
+
+		determineNounForm(word);
+		determineVerbForm(word);
+
+		return word;
 	}
 
 	private String prelude(String word) {
@@ -61,10 +82,10 @@ public class LatinSchinkeStemmer extends Stemmer {
 	}
 
 	private String isQueSuffixEnding(String word) {
-		if (queSuffixWords.contains(word)) {
+		if (QUE_SUFFIXES.contains(word)) {
 			return word;
 		}
-		return removeEnding(word, 3); 
+		return removeEnding(word, 3);
 	}
 
 	private void determineNounForm(String word) {
@@ -73,7 +94,7 @@ public class LatinSchinkeStemmer extends Stemmer {
 		}
 		String original = word;
 
-		for (String suffix : noun_suffixes) {
+		for (String suffix : NOUN_SUFFIXES) {
 			if (word.endsWith(suffix)) {
 				word = removeEnding(word, suffix.length());
 				break;
@@ -81,7 +102,8 @@ public class LatinSchinkeStemmer extends Stemmer {
 		}
 
 		if (word.length() > 1) {
-			writeToNounDictionary(original, word);
+			final String nounForm = word;
+			this.nounForms.computeIfAbsent(original, k -> nounForm);
 		}
 	}
 
@@ -89,14 +111,15 @@ public class LatinSchinkeStemmer extends Stemmer {
 		if (verbForms.containsKey(word)) {
 			return;
 		}
+
 		String original = word;
 
-		outer: for (int i = 0; i < verb_suffixes.length; i += 2) {
-			for (String suffix : verb_suffixes[i]) {
+		outer: for (int i = 0; i < VERB_SUFFIXES.length; i += 2) {
+			for (String suffix : VERB_SUFFIXES[i]) {
 				if (word.endsWith(suffix)) {
 					if (word.length() - suffix.length() >= 2) {
 						word = removeEnding(word, suffix.length());
-						word += verb_suffixes[i + 1][0];
+						word += VERB_SUFFIXES[i + 1][0];
 					}
 					break outer;
 				}
@@ -104,43 +127,9 @@ public class LatinSchinkeStemmer extends Stemmer {
 		}
 
 		if (word.length() > 1) {
-			writeToVerbDictionary(original, word);
+			final String verbForm = word;
+			verbForms.computeIfAbsent(original, k -> verbForm);
 		}
-	}
-
-	private boolean writeToNounDictionary(String wordKey, String value) {
-		if (!nounForms.containsKey(wordKey)) {
-			nounForms.put(wordKey, value);
-		}
-		return true;
-	}
-
-	private boolean writeToVerbDictionary(String wordKey, String value) {
-		if (!verbForms.containsKey(wordKey)) {
-			verbForms.put(wordKey, value);
-		}
-		return true;
-	}
-
-	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		word = prelude(word);
-
-		if (word.endsWith("que")) {
-			word = isQueSuffixEnding(word);
-		}
-
-		determineNounForm(word);
-		determineVerbForm(word);
-
-		if (!nounForms.containsKey(word)) {
-			writeToNounDictionary(word, word);
-		}
-		if (!verbForms.containsKey(word)) {
-			writeToVerbDictionary(word, word);
-		}
-		return word;
 	}
 
 	public String getNounForm(String word) {
@@ -149,5 +138,10 @@ public class LatinSchinkeStemmer extends Stemmer {
 
 	public String getVerbForm(String word) {
 		return verbForms.get(stem(word));
+	}
+
+	@Override
+	public Language getLanguage() {
+		return Language.LATIN;
 	}
 }

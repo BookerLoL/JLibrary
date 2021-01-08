@@ -1,16 +1,18 @@
 package main.nlp.stemmers;
-/*
- * Lovins Stemmer
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
  * 
- * For English
+ * Lovings Stemmer for standard English
  * 
- * http://snowball.tartarus.org/algorithms/lovins/stemmer.html
+ * Source: https://snowballstem.org/algorithms/lovins/stemmer.html
  * 
- * This is a working implementation and can be modified if there is something wrong or needs adding
+ * Source Date: January 6, 2021
  * 
- * Rather than using regex, they couldve been checked by looking at chars to be even quicker
- * I used regex merely for practice and learning.
- * 
+ * @author Ethan
+ * @version 1.0
  */
 public class EnglishLovinsStemmer extends Stemmer {
 	private interface Rule {
@@ -45,52 +47,44 @@ public class EnglishLovinsStemmer extends Stemmer {
 		}
 	}
 
-	/*
-	 * For those that don't know regex, here's a quick explanation
-	 * 
-	 * Regex Guide: 
-	 * 		.  -> any character
-	 * 		regex* -> 0 or infinite any regex
-	 * 		(regexes) -> grouping of multiple regexes
-	 *  	s|e -> s or e
-	 *  	(regex)$ -> ends with (regex)
-	 *  	[abc]  -> a|b|c
-	 *  	[^abc] -> not (a|b|c)
-	 *  	(?<!regex)$ -> negative lookbehind, does not end with regex
-	 *  	
-	 *  	If you are still confused, I suggest just playing around with these regexes in an online regex tester 
-	 *  	and see what inputs are legal and what inputs aren't legal.
-	 */
-	//In lambda form, equivalent would be: function boolean ruleA(String word) { ...body... } 
-	static Rule A = (word) -> true;
-	static Rule B = (word) -> word.length() >= 3;
-	static Rule C = (word) -> word.length() >= 4;
-	static Rule D = (word) -> word.length() >= 5;
-	static Rule E = (word) -> isMatching(word, new String[] {".*[^e]$"});
-	static Rule F = (word) -> word.length() >= 3 && isMatching(word, new String[] {".*[^e]$"});
-	static Rule G = (word) -> word.length() >= 3 && isMatching(word, new String[] {".*f$"});
-	static Rule H = (word) -> isMatching(word, new String[] {".*(t|ll)$"});
-	static Rule I = (word) -> isMatching(word, new String[] {".*[^oe]$"}); 
-	static Rule J = (word) -> isMatching(word, new String[] {".*[^ae]$"});
-	static Rule K = (word) -> word.length() >= 3 && isMatching(word, new String[] {".*(l|i|u.e)$"});
-	static Rule L = (word) -> isMatching(word, new String[] {"(.*[^uxs]$)|(.*os$)"});
-	static Rule M = (word) -> isMatching(word, new String[] {".*[^acem]$"});
-	static Rule N = (word) -> word.length() >= 4 || (word.length() == 3 && isMatching(word, new String[] {"[^s].*$"}));
-	static Rule O = (word) -> isMatching(word, new String[] {".*[li]$"});
-	static Rule P = (word) -> isMatching(word, new String[] {".*[^c]$"});
-	static Rule Q = (word) -> word.length() >= 3 && isMatching(word, new String[] {".*[^ln]$"});
-	static Rule R = (word) -> isMatching(word, new String[] {".*[nr]$"});
-	static Rule S = (word) -> isMatching(word, new String[] {".*(dr|[^t]t)$", "^t$"});
-	static Rule T = (word) -> isMatching(word, new String[] {".*(s|[^o]t)$", "^t$"});
-	static Rule U = (word) -> isMatching(word, new String[] {".*[lmnr]$"});
-	static Rule V = (word) -> isMatching(word, new String[] {".*c$"});
-	static Rule W = (word) -> isMatching(word, new String[] {".*[^su]$"});
-	static Rule X = (word) -> isMatching(word, new String[] {".*(l|i|u.e)$"});
-	static Rule Y = (word) -> isMatching(word, new String[] {".*in$"});
-	static Rule Z = (word) -> isMatching(word, new String[] {".*[^f]$"});
-	static Rule AA = (word) -> isMatching(word, new String[] {".*(d|f|ph|th|l|er|or|es|t)$"});
-	static Rule BB = (word) -> word.length() >= 3 && isMatching(word, new String[] {".*(?<!met|ryst)$"});
-	static Rule CC = (word) -> isMatching(word, new String[] {".*l$"});
+	private static final Rule A = (word) -> true;
+	private static final Rule B = (word) -> word.length() >= 3;
+	private static final Rule C = (word) -> word.length() >= 4;
+	private static final Rule D = (word) -> word.length() >= 5;
+	private static final Rule E = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^e]$") });
+	private static final Rule F = (word) -> word.length() >= 3
+			&& isMatching(word, new Pattern[] { Pattern.compile(".*[^e]$") });
+	private static final Rule G = (word) -> word.length() >= 3
+			&& isMatching(word, new Pattern[] { Pattern.compile(".*f$") });
+	private static final Rule H = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*(t|ll)$") });
+	private static final Rule I = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^oe]$") });
+	private static final Rule J = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^ae]$") });
+	private static final Rule K = (word) -> word.length() >= 3
+			&& isMatching(word, new Pattern[] { Pattern.compile(".*(l|i|u.e)$") });
+	private static final Rule L = (word) -> isMatching(word, new Pattern[] { Pattern.compile("(.*[^uxs]$)|(.*os$)") });
+	private static final Rule M = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^acem]$") });
+	private static final Rule N = (word) -> word.length() >= 4
+			|| (word.length() == 3 && isMatching(word, new Pattern[] { Pattern.compile("[^s].*$") }));
+	private static final Rule O = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[li]$") });
+	private static final Rule P = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^c]$") });
+	private static final Rule Q = (word) -> word.length() >= 3
+			&& isMatching(word, new Pattern[] { Pattern.compile(".*[^ln]$") });
+	private static final Rule R = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[nr]$") });
+	private static final Rule S = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*(dr|[^t]t)$"), Pattern.compile("^t$") });
+	private static final Rule T = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*(s|[^o]t)$"), Pattern.compile("^t$") });
+	private static final Rule U = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[lmnr]$") });
+	private static final Rule V = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*c$") });
+	private static final Rule W = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^su]$") });
+	private static final Rule X = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*(l|i|u.e)$") });
+	private static final Rule Y = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*in$") });
+	private static final Rule Z = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^f]$") });
+	private static final Rule AA = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*(d|f|ph|th|l|er|or|es|t)$") });
+	private static final Rule BB = (word) -> word.length() >= 3
+			&& isMatching(word, new Pattern[] { Pattern.compile(".*(?<!met|ryst)$") });
+	private static final Rule CC = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*l$") });
 
 	private static final ContexualRule[][] RULE_ASSOCIATIONS = {
 			{ new ContexualRule("alistically", B), new ContexualRule("arizability", A),
@@ -208,22 +202,32 @@ public class EnglishLovinsStemmer extends Stemmer {
 			{ "ax", "ac" }, { "ex", "ec" }, { "ix", "ic" }, { "lux", "luc" }, { "uad", "uas" }, { "vad", "vas" },
 			{ "cid", "cis" }, { "lid", "lis" }, { "erid", "eris" }, { "pand", "pans" }, { "end", "ens", "s" },
 			{ "ond", "ons" }, { "lud", "lus" }, { "rud", "rus" }, { "her", "hes", "p,t" }, { "mit", "mis" },
-			{ "ent", "ens", "m" }, { "ert", "ers" }, { "et", "es", "n" }, { "yt", "ys" }, { "yz", "ys" }
-	};
-	
+			{ "ent", "ens", "m" }, { "ert", "ers" }, { "et", "es", "n" }, { "yt", "ys" }, { "yz", "ys" } };
 	private static final String TRANSFORMATION_DELIMITER = ",";
+
 	private static final int MIN_DOUBLE_LENGTH = 2;
 	private static final int MIN_STEM_LENGTH = 2;
 	private static final int MAX_SUFFIX_LENGTH = 11;
 
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
+		word = removeSuffix(word);
+		word = undouble(word);
+		word = respell(word);
+		return word;
+	}
+
 	private String removeSuffix(String word) {
-		if (word.length() >= MIN_STEM_LENGTH) {
+		if (word.length() > MIN_STEM_LENGTH) {
 			int suffixLength = MAX_SUFFIX_LENGTH + 1;
 			for (ContexualRule[] associations : RULE_ASSOCIATIONS) {
 				suffixLength--;
-				if (word.length() - suffixLength < MIN_STEM_LENGTH) { // word - suffix  < stem length
+
+				if (word.length() - suffixLength < MIN_STEM_LENGTH) {
 					continue;
 				}
+
 				for (ContexualRule association : associations) {
 					word = association.applyTest(word);
 					if (association.isTestSuccessful()) {
@@ -239,7 +243,7 @@ public class EnglishLovinsStemmer extends Stemmer {
 		if (word.length() < MIN_DOUBLE_LENGTH) {
 			return word;
 		}
-		
+
 		for (String ending : DOUBLE_ENDINGS) {
 			if (word.endsWith(ending)) {
 				word = removeEnding(word, 1);
@@ -248,14 +252,14 @@ public class EnglishLovinsStemmer extends Stemmer {
 		}
 		return word;
 	}
-	
+
 	private String respell(String word) {
 		for (String[] options : TRANSFORMATIONS) {
 			String ending = options[0];
-			String replacement = options[1];
 
 			if (word.endsWith(ending)) {
 				String stem = removeEnding(word, ending.length());
+				String replacement = options[1];
 
 				if (options.length == 2) {
 					word = stem + replacement;
@@ -277,30 +281,19 @@ public class EnglishLovinsStemmer extends Stemmer {
 		}
 		return word;
 	}
-	
-	private static boolean isMatching(String word, String[] regexOptions) {
-		if (isEmpty(regexOptions)) {
-			return true;
-		}
 
-		for (String regex : regexOptions) {
-			if (word.matches(regex)) {
+	@Override
+	public Language getLanguage() {
+		return Language.ENGLISH;
+	}
+	
+	private static boolean isMatching(String word, Pattern[] regexOptions) {
+		for (Pattern regexPattern : regexOptions) {
+			Matcher matcher = regexPattern.matcher(word);
+			if (matcher.matches()) {
 				return true;
 			}
 		}
 		return false;
-	}
-	
-	private static boolean isEmpty(String[] array) {
-		return array == null || array.length == 0;
-	}
-
-	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		word = removeSuffix(word);
-		word = undouble(word);
-		word = respell(word);
-		return word;
 	}
 }

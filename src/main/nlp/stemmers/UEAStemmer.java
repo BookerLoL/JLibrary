@@ -1,16 +1,21 @@
-package main.nlp.stemmers;/*
- * UEA Stemmer
+package main.nlp.stemmers;
+
+/**
  * 
- * For English
+ * UEA stemmer for standard English
  * 
- * https://www.uea.ac.uk/computing/word-stemming/
+ * Source: https://www.uea.ac.uk/computing/word-stemming/
  * 
+ * Source Date: January 6, 2021
+ * 
+ * @author Ethan
+ * @version 1.0
  */
 public class UEAStemmer extends Stemmer {
-	private static final String[] ignoreWords = { "is", "as", "this", "has", "was", "during" };
+	private static final String[] IGNORE_WORDS = { "is", "as", "this", "has", "was", "during" };
 
 	private boolean isIgnoreWord(String word) {
-		for (String ignoreWord : ignoreWords) {
+		for (String ignoreWord : IGNORE_WORDS) {
 			if (word.equals(ignoreWord)) {
 				return true;
 			}
@@ -25,7 +30,7 @@ public class UEAStemmer extends Stemmer {
 	 */
 	private String handleContractions(String word) {
 		StringBuilder sb = new StringBuilder(word.length());
-		char prev = '\0';
+		char prev = EMPTY_CH;
 		for (int i = 0; i < word.length(); i++) {
 			char ch = word.charAt(i);
 			if (ch == '\'') {
@@ -278,15 +283,20 @@ public class UEAStemmer extends Stemmer {
 		}
 		return stemmedWord;
 	}
-	
+
 	@Override
 	public String stem(String word) {
-		word = normalize(word); // because i normalize it to lowercase, I skip all the uppercase rules
+		word = normalize(word);
 		if (isIgnoreWord(word)) {
 			return word;
 		}
 		word = handleContractions(word);
 		word = oneFullPassStem(word);
 		return word;
+	}
+
+	@Override
+	public Language getLanguage() {
+		return Language.ENGLISH;
 	}
 }

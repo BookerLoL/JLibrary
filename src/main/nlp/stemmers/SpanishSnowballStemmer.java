@@ -1,36 +1,41 @@
 package main.nlp.stemmers;
-/*
- * Snowball stemmer
+
+/**
  * 
- * For Standard Spanish
+ * Snowball stemmer for standard Spanish
  * 
- * https://snowballstem.org/algorithms/spanish/stemmer.html
+ * Source: https://snowballstem.org/algorithms/spanish/stemmer.html
  * 
+ * Source Date: January 6, 2021
+ * 
+ * @author Ethan
+ * @version 1.0
  */
 public class SpanishSnowballStemmer extends Stemmer {
 	private static final int MIN_LENGTH = 2;
-	private static final String[] step0_suffixes = { "selos", "selas", "selo", "sela", "las", "les", "los", "nos", "la",
+	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'ü' };
+
+	private static final String[] STEP0_SUFFIXES = { "selos", "selas", "selo", "sela", "las", "les", "los", "nos", "la",
 			"le", "lo", "me", "se" };
-	// keep step0_precedingSuffix1 & step0_precedingSuffix2 in same order, otherwise code logic is incorrect
-	private static final String[] step0_precedingSuffix1 = { "iéndo", "ándo", "ár", "ér", "ír" };
-	private static final String[] step0_precedingSuffix2 = { "iendo", "ando", "ar", "er", "ir" };
-	private static final String step0_precedingSuffix3 = "yendo";
-	private static final String[] step2a_suffixes1 = { "yeron", "yendo", "yamos", "yais", "yan", "yen", "yas", "yes",
+	private static final String[] STEP0_SUFFIXES_PRECEDING1 = { "iéndo", "ándo", "ár", "ér", "ír" };
+	private static final String[] STEP0_SUFFIXES_PRECEDING2 = { "iendo", "ando", "ar", "er", "ir" };
+	private static final String STEP0_SUFFIXES_PRECEDING3 = "yendo";
+	private static final String[] STEP2A_SUFFIXES1 = { "yeron", "yendo", "yamos", "yais", "yan", "yen", "yas", "yes",
 			"ya", "ye", "yo", "yó", };
-	private static final String[] step1_suffixes1 = { "amientos", "imientos", "amiento", "imiento", "anzas", "ismos",
+	private static final String[] STEP1_SUFFIXES1 = { "amientos", "imientos", "amiento", "imiento", "anzas", "ismos",
 			"ables", "ibles", "istas", "anza", "icos", "icas", "ismo", "able", "ible", "ista", "osos", "osas", "ico",
 			"ica", "oso", "osa" };
-	private static final String[] step1_suffixes2 = { "aciones", "adoras", "adores", "ancias", "adora", "ación",
+	private static final String[] STEP1_SUFFIXES2 = { "aciones", "adoras", "adores", "ancias", "adora", "ación",
 			"antes", "ancia", "ador", "ante" };
-	private static final String[] step1_suffixes3 = { "logías", "logía" };
-	private static final String[] step1_suffixes4 = { "uciones", "ución" };
-	private static final String[] step1_suffixes5 = { "encias", "encia" };
-	private static final String[] step1_suffixes6_1 = { "ativ", "iv", "os", "ic", "ad" };
-	private static final String[] step1_suffixes8 = { "idades", "idad" };
-	private static final String[] step1_suffixes8_2 = { "abil", "ic", "iv" };
-	private static final String[] step1_suffixes7_1 = { "ante", "able", "ible" };
-	private static final String[] step1_suffixes9 = { "ivos", "ivas", "iva", "ivo" };
-	private static final String[] step2b_suffixes1 = { "aríamos", "eríamos", "iríamos", "iéramos", "iésemos", "ierais",
+	private static final String[] STEP1_SUFFIXES3 = { "logías", "logía" };
+	private static final String[] STEP1_SUFFIXES4 = { "uciones", "ución" };
+	private static final String[] STEP1_SUFFIXES5 = { "encias", "encia" };
+	private static final String[] STEP1_SUFFIXES6_1 = { "ativ", "iv", "os", "ic", "ad" };
+	private static final String[] STEP1_SUFFIXES8 = { "idades", "idad" };
+	private static final String[] STEP1_SUFFIXES8_2 = { "abil", "ic", "iv" };
+	private static final String[] STEP1_SUFFIXES7_1 = { "ante", "able", "ible" };
+	private static final String[] STEP1_SUFFIXES9 = { "ivos", "ivas", "iva", "ivo" };
+	private static final String[] STEP2B_SUFFIXES1 = { "aríamos", "eríamos", "iríamos", "iéramos", "iésemos", "ierais",
 			"aríais", "aremos", "eríais", "eremos", "iríais", "iremos", "ieseis", "asteis", "isteis", "ábamos",
 			"áramos", "ásemos", "arían", "arías", "aréis", "erían", "erías", "eréis", "irían", "irías", "iréis",
 			"ieran", "iesen", "ieron", "iendo", "ieras", "ieses", "abais", "arais", "aseis", "íamos", "arán", "arás",
@@ -38,89 +43,82 @@ public class SpanishSnowballStemmer extends Stemmer {
 			"asen", "aron", "ando", "abas", "adas", "idas", "aras", "ases", "íais", "ados", "idos", "amos", "imos",
 			"ará", "aré", "erá", "eré", "irá", "iré", "aba", "ada", "ida", "ara", "ase", "ían", "ado", "ido", "ías",
 			"áis", "ía", "ad", "ed", "id", "an", "ió", "ar", "er", "ir", "as", "ís" };
-	private static final String[] step2b_suffixes2 = { "emos", "éis", "es", "en" };
-	private static final String[] step3_suffixes1 = { "os", "a", "o", "á", "í", "ó" };
-	private static final String[] step3_suffixes2 = { "e", "é" };
-	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'ü' };
-	
+	private static final String[] STEP2B_SUFFIXES2 = { "emos", "éis", "es", "en" };
+	private static final String[] STEP3_SUFFIXES1 = { "os", "a", "o", "á", "í", "ó" };
+	private static final String[] STEP3_SUFFIXES2 = { "e", "é" };
+
 	private int R1;
 	private int R2;
 	private int RV;
 
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
 
-	private static boolean isVowel(char ch) {
-		for (char vowel : VOWELS) {
-			if (ch == vowel) {
-				return true;
-			}
+		if (word.length() < MIN_LENGTH) {
+			return finalize(word);
 		}
-		return false;
-	}
 
-	private static boolean isConsonant(char ch) {
-		return !isVowel(ch);
+		markRegions(word);
+		word = step0(word);
+		String didntChange = word;
+		word = step1(word);
+
+		if (didntChange.equals(word)) {
+			word = STEP2A(word);
+		}
+		if (didntChange.equals(word)) {
+			word = STEP2B(word);
+		}
+
+		word = step3(word);
+		return finalize(word);
 	}
 
 	private void markRegions(String word) {
-		markRV(word);
-		markRNumbers(word);
+		RV = markRV(word);
+		R1 = calcR1VC(word, VOWELS);
+		R2 = calcR2VC(word, R1, VOWELS);
 	}
 
-	private void markRV(String word) {
-		RV = word.length();
+	private int markRV(String word) {
+		int rv = word.length();
 		char secondLetter = word.charAt(1);
-		if (isConsonant(secondLetter)) { // X C
+		if (isConsonant(secondLetter, VOWELS)) { // X C
 			for (int i = 2; i < word.length(); i++) {
-				if (isVowel(word.charAt(i))) {
-					RV = i + 1;
+				if (isVowel(word.charAt(i), VOWELS)) {
+					rv = i + 1;
 					break;
 				}
 			}
-		} else if (isVowel(word.charAt(0))) { // V V
+		} else if (isVowel(word.charAt(0), VOWELS)) { // V V
 			for (int i = 2; i < word.length(); i++) {
-				if (isConsonant(word.charAt(i))) {
-					RV = i + 1;
+				if (isConsonant(word.charAt(i), VOWELS)) {
+					rv = i + 1;
 					break;
 				}
 			}
 		} else {
-			RV = 3;
+			rv = 3;
 		}
+		return rv;
 	}
 
-	private void markRNumbers(String word) {
-		R1 = word.length();
-		R2 = R1;
-
-		for (int i = 0; i < word.length() - 2; i++) {
-			if (isVowel(word.charAt(i)) && isConsonant(word.charAt(i + 1))) {
-				R1 = i + 2; // Get area after combination
-				break;
-			}
-		}
-
-		for (int i = R1; i < word.length() - 2; i++) {
-			if (isVowel(word.charAt(i)) && isConsonant(word.charAt(i + 1))) {
-				R2 = i + 2; // Get area after combination
-				break;
-			}
-		}
-	}
-	
 	private String step0(String word) {
-		for (String suffix : step0_suffixes) {
+		for (String suffix : STEP0_SUFFIXES) {
 			if (word.endsWith(suffix)) {
 				boolean skip = false;
 				String temp = removeEnding(word, suffix.length());
 				String RVtemp = getRegionSubstring(temp, RV);
 
-				for (int i = 0; i < step0_precedingSuffix1.length; i++) {
-					if (RVtemp.endsWith(step0_precedingSuffix1[i])) {
-						RVtemp = removeEnding(temp, step0_precedingSuffix1[i].length()) + step0_precedingSuffix2[i];
-						temp = removeEnding(temp, step0_precedingSuffix1[i].length()) + step0_precedingSuffix2[i];
+				for (int i = 0; i < STEP0_SUFFIXES_PRECEDING1.length; i++) {
+					if (RVtemp.endsWith(STEP0_SUFFIXES_PRECEDING1[i])) {
+						RVtemp = removeEnding(temp, STEP0_SUFFIXES_PRECEDING1[i].length())
+								+ STEP0_SUFFIXES_PRECEDING2[i];
+						temp = removeEnding(temp, STEP0_SUFFIXES_PRECEDING1[i].length()) + STEP0_SUFFIXES_PRECEDING2[i];
 					}
 
-					if (RVtemp.endsWith(step0_precedingSuffix2[i])) {
+					if (RVtemp.endsWith(STEP0_SUFFIXES_PRECEDING2[i])) {
 						word = temp;
 						skip = true;
 						break;
@@ -128,8 +126,8 @@ public class SpanishSnowballStemmer extends Stemmer {
 				}
 
 				if (!skip) {
-					if (RVtemp.endsWith(step0_precedingSuffix3) && temp.length() > step0_precedingSuffix3.length()
-							&& temp.charAt(temp.length() - step0_precedingSuffix3.length() - 1) == 'u') {
+					if (RVtemp.endsWith(STEP0_SUFFIXES_PRECEDING3) && temp.length() > STEP0_SUFFIXES_PRECEDING3.length()
+							&& temp.charAt(temp.length() - STEP0_SUFFIXES_PRECEDING3.length() - 1) == 'u') {
 						word = temp;
 					}
 				}
@@ -142,7 +140,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 	private String step1(String word) {
 		String R2String = getRegionSubstring(word, R2);
 
-		for (String suffix : step1_suffixes1) {
+		for (String suffix : STEP1_SUFFIXES1) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
@@ -151,7 +149,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step1_suffixes2) {
+		for (String suffix : STEP1_SUFFIXES2) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
@@ -164,7 +162,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step1_suffixes3) {
+		for (String suffix : STEP1_SUFFIXES3) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length()) + "log";
@@ -173,7 +171,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step1_suffixes4) {
+		for (String suffix : STEP1_SUFFIXES4) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length()) + "u";
@@ -182,7 +180,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step1_suffixes5) {
+		for (String suffix : STEP1_SUFFIXES5) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length()) + "ente";
@@ -196,7 +194,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 			word = removeEnding(word, 6);
 			R2String = getRegionSubstring(word, R2);
 
-			for (String suffix : step1_suffixes6_1) {
+			for (String suffix : STEP1_SUFFIXES6_1) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
 					break;
@@ -207,7 +205,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 			word = removeEnding(word, 5);
 			R2String = getRegionSubstring(word, R2);
 
-			for (String suffix : step1_suffixes7_1) {
+			for (String suffix : STEP1_SUFFIXES7_1) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
 					break;
@@ -216,12 +214,12 @@ public class SpanishSnowballStemmer extends Stemmer {
 			return word;
 		}
 
-		for (String suffix : step1_suffixes8) {
+		for (String suffix : STEP1_SUFFIXES8) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
 					R2String = removeEnding(R2String, suffix.length());
-					for (String suffix_2 : step1_suffixes8_2) {
+					for (String suffix_2 : STEP1_SUFFIXES8_2) {
 						if (R2String.endsWith(suffix_2)) {
 							word = removeEnding(word, suffix_2.length());
 							break;
@@ -232,7 +230,7 @@ public class SpanishSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step1_suffixes9) {
+		for (String suffix : STEP1_SUFFIXES9) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
@@ -247,9 +245,9 @@ public class SpanishSnowballStemmer extends Stemmer {
 		return word;
 	}
 
-	private String step2a(String word) {
+	private String STEP2A(String word) {
 		String RVString = getRegionSubstring(word, RV);
-		for (String suffix : step2a_suffixes1) {
+		for (String suffix : STEP2A_SUFFIXES1) {
 			if (RVString.endsWith(suffix)) {
 				if (word.length() > suffix.length() && word.charAt(word.length() - suffix.length() - 1) == 'u') {
 					word = removeEnding(word, suffix.length());
@@ -260,17 +258,17 @@ public class SpanishSnowballStemmer extends Stemmer {
 		return word;
 	}
 
-	private String step2b(String word) {
+	private String STEP2B(String word) {
 		String RVString = getRegionSubstring(word, RV);
 
-		for (String suffix : step2b_suffixes1) {
+		for (String suffix : STEP2B_SUFFIXES1) {
 			if (RVString.endsWith(suffix)) {
 				word = removeEnding(word, suffix.length());
 				return word;
 			}
 		}
 
-		for (String suffix : step2b_suffixes2) {
+		for (String suffix : STEP2B_SUFFIXES2) {
 			if (RVString.endsWith(suffix)) {
 				word = removeEnding(word, suffix.length());
 				if (word.endsWith("gu")) {
@@ -285,14 +283,14 @@ public class SpanishSnowballStemmer extends Stemmer {
 	private String step3(String word) {
 		String RVString = getRegionSubstring(word, RV);
 
-		for (String suffix : step3_suffixes1) {
+		for (String suffix : STEP3_SUFFIXES1) {
 			if (RVString.endsWith(suffix)) {
 				word = removeEnding(word, suffix.length());
 				return word;
 			}
 		}
 
-		for (String suffix : step3_suffixes2) {
+		for (String suffix : STEP3_SUFFIXES2) {
 			if (RVString.endsWith(suffix)) {
 				word = removeEnding(word, suffix.length());
 				if (RVString.length() > 1 && RVString.charAt(RVString.length() - 2) == 'u' && word.endsWith("gu")) {
@@ -325,28 +323,9 @@ public class SpanishSnowballStemmer extends Stemmer {
 		}
 		return sb.toString();
 	}
-	
+
 	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		
-		if (word.length() < MIN_LENGTH) {
-			return finalize(word);
-		}
-
-		markRegions(word);
-		word = step0(word);
-		String didntChange = word;
-		word = step1(word);
-
-		if (didntChange.equals(word)) {
-			word = step2a(word);
-		}
-		if (didntChange.equals(word)) {
-			word = step2b(word);
-		}
-		
-		word = step3(word);
-		return finalize(word);
+	public Language getLanguage() {
+		return Language.SPANISH;
 	}
 }

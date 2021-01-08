@@ -1,27 +1,30 @@
 package main.nlp.stemmers;
+
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * Porter1 Stemmer
+/**
  * 
- * For English
+ * Porter1 stemmer for standard English
  * 
- * http://snowball.tartarus.org/algorithms/porter/stemmer.html
+ * Source: http://snowball.tartarus.org/algorithms/porter/stemmer.html
  * 
+ * Source Date: January 6, 2021
+ * 
+ * @author Ethan
+ * @version 1.0
  */
 public class EnglishPorterStemmer extends Stemmer {
+	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u' };
 	private static final char CONSONANT = 'C';
 	private static final char VOWEL = 'V';
+
 	private Map<String, String> formDict;
 	private Map<String, Integer> mDict;
 	private boolean oldEnglishFlag;
 
 	public EnglishPorterStemmer() {
 		this(false);
-		formDict = new HashMap<>();
-		mDict = new HashMap<>();
-		init();
 	}
 
 	public EnglishPorterStemmer(boolean oldEnglishIncluded) {
@@ -34,121 +37,23 @@ public class EnglishPorterStemmer extends Stemmer {
 	private void init() {
 		formDict.put(EMPTY, EMPTY);
 		mDict.put(EMPTY, 0);
-
 		mDict.put("C", 0);
 		mDict.put("V", 0);
 		mDict.put("CV", 0);
 		mDict.put("VC", 1);
 	}
 
-	protected static boolean isNormalVowel(char ch) {
-		return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
-	}
-
-	protected boolean isSpecialVowel(String word, int index) {
-		if (index < 1 || word.length() < 2) {
-			return false;
-		}
-
-		char ch = word.charAt(index);
-		char chBefore = word.charAt(index - 1);
-		return ch == 'y' && !isNormalVowel(chBefore) && !isSpecialVowel(word, index - 1);
-	}
-
-	protected boolean isConsonant(String word, int index) {
-		return !(isNormalVowel(word.charAt(index)) || isSpecialVowel(word, index));
-	}
-
-	protected String generateForm(String word) {
-		if (formDict.containsKey(word)) {
-			return formDict.get(word);
-		}
-
-		StringBuilder sb = new StringBuilder(word.length());
-		boolean isRecentAddedConsonant;
-
-		if (isConsonant(word, 0)) {
-			sb.append(CONSONANT);
-			isRecentAddedConsonant = true;
-		} else {
-			sb.append(VOWEL);
-			isRecentAddedConsonant = false;
-		}
-
-		for (int i = 1; i < word.length(); i++) {
-			if (isConsonant(word, i)) {
-				if (!isRecentAddedConsonant) {
-					sb.append(CONSONANT);
-					isRecentAddedConsonant = true;
-				}
-
-			} else if (isRecentAddedConsonant) {
-				sb.append(VOWEL);
-				isRecentAddedConsonant = false;
-			}
-		}
-
-		String result = sb.toString();
-		formDict.put(word, result);
-		return result;
-	}
-
-	private int calcM(String word) {
-		if (mDict.containsKey(word)) {
-			return mDict.get(word);
-		}
-
-		String form = generateForm(word);
-		int m = 0;
-		final int length = form.length();
-		for (int i = 0; i < length; i++) {
-			if (form.charAt(i) != VOWEL && form.charAt(i) != CONSONANT) {
-				return -1;
-			}
-
-			if (form.charAt(i) == VOWEL && i + 1 < length && form.charAt(i + 1) == CONSONANT) {
-				m++;
-				i++;
-			}
-		}
-
-		mDict.put(form, m);
-		return m;
-	}
-
-	protected boolean containsVowel(String word) {
-		for (int i = 0; i < word.length(); i++) {
-			if (!isConsonant(word, i)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	protected boolean endsWithDoubleConsonant(String word) {
-		int length = word.length();
-		if (length < 2) {
-			return false;
-		}
-		return isConsonant(word, length - 1) && isConsonant(word, length - 2)
-				&& word.charAt(length - 1) == word.charAt(length - 2);
-	}
-
-	protected boolean cvc(String word) {
-		final int length = word.length();
-		if (length < 3) {
-			return false;
-		}
-		char secondC = word.charAt(length - 1);
-		return isConsonant(word, length - 3) && !isConsonant(word, length - 2) && isConsonant(word, length - 1)
-				&& !(secondC == 'w' || secondC == 'x' || secondC == 'y');
-	}
-
-	private String replaceM(String word, int endsWithEndingLength, String newEnding, int minM) {
-		String base = removeEnding(word, endsWithEndingLength);
-		if (calcM(base) > minM) {
-			word = base += newEnding;
-		}
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
+		word = step1a(word);
+		word = step1b(word);
+		word = step1c(word);
+		word = step2(word);
+		word = step3(word);
+		word = step4(word);
+		word = step5a(word);
+		word = step5b(word);
 		return word;
 	}
 
@@ -157,9 +62,7 @@ public class EnglishPorterStemmer extends Stemmer {
 			word = removeEnding(word, 2);
 		} else if (word.endsWith("ies")) {
 			word = removeEnding(word, 2);
-		} else if (word.endsWith("ss")) {
-			// do nothing, need this to prevent "endsWith("s")
-		} else if (word.endsWith("s")) {
+		} else if (word.endsWith("s") && !word.endsWith("ss")) {
 			word = removeEnding(word, 1);
 		}
 		return word;
@@ -197,6 +100,86 @@ public class EnglishPorterStemmer extends Stemmer {
 		return word;
 	}
 
+	private boolean containsVowel(String word) {
+		for (int i = 0; i < word.length(); i++) {
+			if (!isConsonant(word, i)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isConsonant(String word, int index) {
+		return !(isVowel(word.charAt(index), VOWELS) || isSpecialVowel(word, index));
+	}
+
+	private boolean isSpecialVowel(String word, int index) {
+		if (index < 1 || word.length() < 2) {
+			return false;
+		}
+
+		char ch = word.charAt(index);
+		char chBefore = word.charAt(index - 1);
+		return ch == 'y' && isConsonant(chBefore, VOWELS) && !isSpecialVowel(word, index - 1);
+	}
+
+	private int calcM(String word) {
+		if (mDict.containsKey(word)) {
+			return mDict.get(word);
+		}
+
+		String form = generateForm(word);
+		int countedM = countM(form);
+
+		mDict.put(form, countedM);
+		return countedM;
+	}
+
+	private int countM(String form) {
+		int m = 0;
+		for (int i = 0; i < form.length(); i++) {
+			if (form.charAt(i) == VOWEL && i + 1 < form.length() && form.charAt(i + 1) == CONSONANT) {
+				m++;
+				i++;
+			}
+		}
+		return m;
+	}
+
+	private String generateForm(String word) {
+		if (formDict.containsKey(word)) {
+			return formDict.get(word);
+		}
+
+		boolean isRecentAddedConsonant;
+		StringBuilder sb = new StringBuilder(word.length());
+
+		if (isConsonant(word, 0)) {
+			sb.append(CONSONANT);
+			isRecentAddedConsonant = true;
+		} else {
+			sb.append(VOWEL);
+			isRecentAddedConsonant = false;
+		}
+
+		for (int i = 1; i < word.length(); i++) {
+			if (isConsonant(word, i)) {
+				if (!isRecentAddedConsonant) {
+					sb.append(CONSONANT);
+					isRecentAddedConsonant = true;
+				}
+
+			} else if (isRecentAddedConsonant) {
+				sb.append(VOWEL);
+				isRecentAddedConsonant = false;
+			}
+		}
+
+		String result = sb.toString();
+		formDict.put(word, result);
+		return result;
+	}
+
 	private String step1bSpecialCase(String word) {
 		if (word.endsWith("at") || word.endsWith("bl") || word.endsWith("iz")) {
 			word += "e";
@@ -208,12 +191,39 @@ public class EnglishPorterStemmer extends Stemmer {
 		return word;
 	}
 
+	private boolean cvc(String word) {
+		final int length = word.length();
+		if (length < 3) {
+			return false;
+		}
+		char secondC = word.charAt(length - 1);
+		return isConsonant(word, length - 3) && !isConsonant(word, length - 2) && isConsonant(word, length - 1)
+				&& !(secondC == 'w' || secondC == 'x' || secondC == 'y');
+	}
+
+	private boolean endsWithDoubleConsonant(String word) {
+		int length = word.length();
+		if (length < 2) {
+			return false;
+		}
+		return isConsonant(word, length - 1) && isConsonant(word, length - 2)
+				&& word.charAt(length - 1) == word.charAt(length - 2);
+	}
+
 	private String step1c(String word) {
 		if (word.endsWith("y")) {
 			String base = removeEnding(word, 1);
 			if (containsVowel(base)) {
 				word = base + "i";
 			}
+		}
+		return word;
+	}
+
+	private String replaceM(String word, int endsWithEndingLength, String newEnding, int minM) {
+		String base = removeEnding(word, endsWithEndingLength);
+		if (calcM(base) > minM) {
+			word = base += newEnding;
 		}
 		return word;
 	}
@@ -312,17 +322,8 @@ public class EnglishPorterStemmer extends Stemmer {
 			}
 		} else if (word.endsWith("ou")) {
 			word = replaceM(word, 2, EMPTY, 1);
-		} else if (word.endsWith("ism")) {
-			word = replaceM(word, 3, EMPTY, 1);
-		} else if (word.endsWith("ate")) {
-			word = replaceM(word, 3, EMPTY, 1);
-		} else if (word.endsWith("iti")) {
-			word = replaceM(word, 3, EMPTY, 1);
-		} else if (word.endsWith("ous")) {
-			word = replaceM(word, 3, EMPTY, 1);
-		} else if (word.endsWith("ive")) {
-			word = replaceM(word, 3, EMPTY, 1);
-		} else if (word.endsWith("ize")) {
+		} else if (word.endsWith("ism") || word.endsWith("ate") || word.endsWith("iti") || word.endsWith("ous")
+				|| word.endsWith("ive") || word.endsWith("ize")) {
 			word = replaceM(word, 3, EMPTY, 1);
 		}
 		return word;
@@ -349,16 +350,7 @@ public class EnglishPorterStemmer extends Stemmer {
 	}
 
 	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		word = step1a(word);
-		word = step1b(word);
-		word = step1c(word);
-		word = step2(word);
-		word = step3(word);
-		word = step4(word);
-		word = step5a(word);
-		word = step5b(word);
-		return word;
+	public Language getLanguage() {
+		return Language.ENGLISH;
 	}
 }

@@ -1,79 +1,71 @@
 package main.nlp.stemmers;
-/*
- * Snowball stemmer
+
+/**
  * 
- * For Standard Swedish
+ * Snowball stemmer for standard Swedish
  * 
- * https://snowballstem.org/algorithms/swedish/stemmer.html
+ * Source: https://snowballstem.org/algorithms/swedish/stemmer.html
  * 
+ * Source Date: January 6, 2021
+ * 
+ * @author Ethan
+ * @version 1.0
  */
 public class SwedishSnowballStemmer extends Stemmer {
 	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u', 'y', 'ä', 'å', 'ö' };
 	private static final char[] VALID_S_ENDING = { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r',
 			't', 'v', 'y' };
-	private static final String[] step1_suffixes1 = { "heterna", "hetens", "anden", "heten", "heter", "arnas", "ernas",
+
+	private static final String[] STEP1_SUFFIXES1 = { "heterna", "hetens", "anden", "heten", "heter", "arnas", "ernas",
 			"ornas", "andes", "arens", "andet", "arna", "erna", "orna", "ande", "arne", "aste", "aren", "ades", "erns",
 			"ade", "are", "ern", "ens", "het", "ast", "ad", "en", "ar", "er", "or", "as", "es", "at", "a", "e" };
-	private static final String step1_suffixes2 = "s";
-	private static final String[] step2_suffixes1 = { "dd", "gd", "nn", "dt", "gt", "kt", "tt" };
-	private static final String[] step3_suffixes1 = { "lig", "els", "ig" };
-	private static final String step3_suffixes2 = "löst";
-	private static final String step3_suffixes2_replacement = "lös";
-	private static final String step3_suffixes3 = "fullt";
-	private static final String step3_suffixes3_replacement = "full";
+	private static final String STEP1_SUFFIXES2 = "s";
+	private static final String[] STEP2_SUFFIXES1 = { "dd", "gd", "nn", "dt", "gt", "kt", "tt" };
+	private static final String[] STEP3_SUFFIXES1 = { "lig", "els", "ig" };
+	private static final String STEP3_SUFFIXES2 = "löst";
+	private static final String STEP3_SUFFIXES2_replacement = "lös";
+	private static final String STEP3_SUFFIXES3 = "fullt";
+	private static final String STEP3_SUFFIXES3_replacement = "full";
 
 	private int R1;
 
-	private boolean isVowel(char ch) {
-		for (char vowel : VOWELS) {
-			if (ch == vowel) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isValidSEnding(char ch) {
-		for (char sEnding : VALID_S_ENDING) {
-			if (ch == sEnding) {
-				return true;
-			}
-		}
-		return false;
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
+		markRNumberRegion(word);
+		word = step1(word);
+		word = step2(word);
+		word = step3(word);
+		return word;
 	}
 
 	private void markRNumberRegion(String word) {
-		R1 = word.length();
-
-		for (int i = 0; i < word.length() - 1; i++) {
-			if (isVowel(word.charAt(i)) && !isVowel(word.charAt(i + 1))) {
-				R1 = i + 2;
-				break;
-			}
-		}
-		if (R1 < 3) {
-			R1 = 3;
-		}
+		R1 = calcR1VC(word, VOWELS);
+		R1 = R1 < 3 ? 3 : R1;
 	}
 
 	private String step1(String word) {
 		String R1String = getRegionSubstring(word, R1);
-		for (String suffix : step1_suffixes1) {
+		for (String suffix : STEP1_SUFFIXES1) {
 			if (R1String.endsWith(suffix)) {
 				word = removeEnding(word, suffix.length());
 				return word;
 			}
 		}
 
-		if (R1String.endsWith(step1_suffixes2) && isValidSEnding(word.charAt(word.length() - 2))) {
+		if (R1String.endsWith(STEP1_SUFFIXES2) && isValidSEnding(word.charAt(word.length() - 2))) {
 			word = removeEnding(word, 1);
 		}
 		return word;
 	}
 
+	private boolean isValidSEnding(char ch) {
+		return contains(ch, VALID_S_ENDING);
+	}
+
 	private String step2(String word) {
 		String R1String = getRegionSubstring(word, R1);
-		for (String suffix : step2_suffixes1) {
+		for (String suffix : STEP2_SUFFIXES1) {
 			if (R1String.endsWith(suffix)) {
 				word = removeEnding(word, 1);
 				return word;
@@ -84,28 +76,23 @@ public class SwedishSnowballStemmer extends Stemmer {
 
 	private String step3(String word) {
 		String R1String = getRegionSubstring(word, R1);
-		for (String suffix : step3_suffixes1) {
+		for (String suffix : STEP3_SUFFIXES1) {
 			if (R1String.endsWith(suffix)) {
 				word = removeEnding(word, suffix.length());
 				return word;
 			}
 		}
 
-		if (R1String.endsWith(step3_suffixes2)) {
-			word = removeEnding(word, step3_suffixes2.length()) + step3_suffixes2_replacement;
-		} else if (R1String.endsWith(step3_suffixes3)) {
-			word = removeEnding(word, step3_suffixes3.length()) + step3_suffixes3_replacement;
+		if (R1String.endsWith(STEP3_SUFFIXES2)) {
+			word = removeEnding(word, STEP3_SUFFIXES2.length()) + STEP3_SUFFIXES2_replacement;
+		} else if (R1String.endsWith(STEP3_SUFFIXES3)) {
+			word = removeEnding(word, STEP3_SUFFIXES3.length()) + STEP3_SUFFIXES3_replacement;
 		}
 		return word;
 	}
 
 	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		markRNumberRegion(word);
-		word = step1(word);
-		word = step2(word);
-		word = step3(word);
-		return word;
+	public Language getLanguage() {
+		return Language.SWEDISH;
 	}
 }

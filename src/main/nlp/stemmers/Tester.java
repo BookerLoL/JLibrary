@@ -57,11 +57,11 @@ public class Tester {
 	
 	private static PrintStream out;
 	public static void main(String[] args) throws UnsupportedEncodingException {
-		out = new PrintStream(System.out, true, "UTF-8"); //ensure this line remains
+		out = new PrintStream(System.out, true, "UTF-8");
 
-		TestingGroup test = getLovinsStemmer();
+		//TestingGroup test = getSpanishSnowballStemmer();
 		//testStemming(test.getVocabFile(), test.getStemFile(), test.getStemmer(), true);
-		//test("losing", "los", test.getStemmer());
+		//test("revolução", "revoluçã", test.getStemmer());
 		testAllStemmers();
 	}
 
@@ -194,7 +194,7 @@ public class Tester {
 				}
 			}
 		}
-		System.out.println("There were " + wrong + " incorrect");
+		System.out.println("There were " + wrong + " incorrect out of " + expectedResults.size() + " inputs");
 	}
 
 	public static void test(String word, String expected, Stemmer stemmer) {

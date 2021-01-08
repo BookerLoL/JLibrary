@@ -1,102 +1,73 @@
-package main.nlp.stemmers;/*
- * Snowball stemmer
+package main.nlp.stemmers;
+
+/**
  * 
- * For Standard German
+ * Snowball stemmer for standard German
  * 
- * https://snowballstem.org/algorithms/german/stemmer.html
+ * Source: https://snowballstem.org/algorithms/german/stemmer.html
  * 
+ * Source Date: January 6, 2021
+ * 
+ * @author Ethan
+ * @version 1.0
  */
 public class GermanSnowballStemmer extends Stemmer {
 	protected static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u', 'y', 'ä', 'ö', 'ü' };
 	private static final char[] VALID_S_ENDING = { 'b', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'r', 't' };
 	private static final char[] VALID_ST_ENDING = { 'b', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 't' };
-	private static final String[] step1_suffixes1 = { "ern", "er", "em" };
-	private static final String[] step1_suffixes2 = { "en", "es", "e" };
-	private static final String[] step1_suffixes3 = { "s" };
-	private static final String[] step2_suffixes1 = { "est", "en", "er" };
-	private static final String[] step2_suffixes2 = { "st" };
-	private static final String[] step3_suffixes1 = { "end", "ung" };
-	private static final String[] step3_suffixes1_1 = { "ig" };
-	private static final String[] step3_suffixes2 = { "isch", "ig", "ik" };
-	private static final String[] step3_suffixes3 = { "lich", "heit" };
-	private static final String[] step3_suffixes3_1 = { "er", "en" };
-	private static final String[] step3_suffixes4 = { "keit" };
-	private static final String[] step3_suffixes4_1 = { "lich", "ig" };
+
+	private static final String[] STEP1_SUFFIXES1 = { "ern", "er", "em" };
+	private static final String[] STEP1_SUFFIXES2 = { "en", "es", "e" };
+	private static final String[] STEP1_SUFFIXES3 = { "s" };
+	private static final String[] STEP2_SUFFIXES1 = { "est", "en", "er" };
+	private static final String[] STEP2_SUFFIXES2 = { "st" };
+	private static final String[] STEP3_SUFFIXES1 = { "end", "ung" };
+	private static final String[] STEP3_SUFFIXES1_1 = { "ig" };
+	private static final String[] STEP3_SUFFIXES2 = { "isch", "ig", "ik" };
+	private static final String[] STEP3_SUFFIXES3 = { "lich", "heit" };
+	private static final String[] STEP3_SUFFIXES3_1 = { "er", "en" };
+	private static final String[] STEP3_SUFFIXES4 = { "keit" };
+	private static final String[] STEP3_SUFFIXES4_1 = { "lich", "ig" };
 
 	private int R1;
 	private int R2;
 
-	protected boolean isVowel(char ch) {
-		for (char vowel : VOWELS) {
-			if (ch == vowel) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isValidSEnding(char ch) {
-		for (char sEnding : VALID_S_ENDING) {
-			if (ch == sEnding) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isValidSTEnding(char ch) {
-		for (char stEnding : VALID_ST_ENDING) {
-			if (ch == stEnding) {
-				return true;
-			}
-		}
-		return false;
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
+		word = rewrite(word);
+		markRNumberRegions(word);
+		word = step1(word);
+		word = step2(word);
+		word = step3(word);
+		return finalize(word);
 	}
 
 	private String rewrite(String word) {
 		StringBuilder sb = new StringBuilder(word.length());
-		boolean prevCharIsVowel = false;
-
 		for (int i = 0; i < word.length(); i++) {
 			char ch = word.charAt(i);
 			if (ch == 'ß') {
 				sb.append("ss");
-			} else if ((ch == 'u' || ch == 'y') && prevCharIsVowel && i + 1 < word.length()
-					&& isVowel(word.charAt(i + 1))) {
+			} else if ((ch == 'u' || ch == 'y') && i > 0 && isVowel(word.charAt(i - 1), VOWELS) && i + 1 < word.length()
+					&& isVowel(word.charAt(i + 1), VOWELS)) {
 				sb.append(Character.toUpperCase(ch));
 			} else {
 				sb.append(ch);
-				prevCharIsVowel = isVowel(ch);
 			}
 		}
 		return sb.toString();
 	}
 
 	private void markRNumberRegions(String word) {
-		R1 = word.length();
-		R2 = R1;
-
-		for (int i = 0; i < word.length() - 1; i++) {
-			if (isVowel(word.charAt(i)) && !isVowel(word.charAt(i + 1))) {
-				R1 = i + 2;
-				break;
-			}
-		}
-		if (R1 < 3) {
-			R1 = 3;
-		}
-
-		for (int i = R1 - 1; i < word.length() - 1; i++) {
-			if (isVowel(word.charAt(i)) && !isVowel(word.charAt(i + 1))) {
-				R2 = i + 2;
-				break;
-			}
-		}
+		R1 = calcR1VC(word, VOWELS);
+		R1 = R1 < 3 ? 3 : R1;
+		R2 = calcR2VC(word, R1, VOWELS);
 	}
-	
+
 	private String step1(String word) {
 		String R1String = getRegionSubstring(word, R1);
-		for (String suffix : step1_suffixes1) {
+		for (String suffix : STEP1_SUFFIXES1) {
 			if (word.endsWith(suffix)) {
 				if (R1String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
@@ -105,11 +76,11 @@ public class GermanSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step1_suffixes2) {
+		for (String suffix : STEP1_SUFFIXES2) {
 			if (word.endsWith(suffix)) {
 				if (R1String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
-					if (word.endsWith("niss")) { // might need to be R1String
+					if (word.endsWith("niss")) {
 						word = removeEnding(word, 1);
 					}
 				}
@@ -117,20 +88,24 @@ public class GermanSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step1_suffixes3) {
+		for (String suffix : STEP1_SUFFIXES3) {
 			if (word.endsWith(suffix)) {
 				if (R1String.endsWith(suffix) && word.length() > 1 && isValidSEnding(word.charAt(word.length() - 2))) {
 					word = removeEnding(word, suffix.length());
 				}
-				break;
+				return word;
 			}
 		}
 		return word;
 	}
 
+	private boolean isValidSEnding(char ch) {
+		return contains(ch, VALID_S_ENDING);
+	}
+
 	private String step2(String word) {
 		String R1String = getRegionSubstring(word, R1);
-		for (String suffix : step2_suffixes1) {
+		for (String suffix : STEP2_SUFFIXES1) {
 			if (word.endsWith(suffix)) {
 				if (R1String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
@@ -139,7 +114,7 @@ public class GermanSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step2_suffixes2) {
+		for (String suffix : STEP2_SUFFIXES2) {
 			if (word.endsWith(suffix)) {
 				if (R1String.endsWith(suffix) && word.length() > 5
 						&& isValidSTEnding(word.charAt(word.length() - suffix.length() - 1))) {
@@ -151,15 +126,19 @@ public class GermanSnowballStemmer extends Stemmer {
 		return word;
 	}
 
+	private boolean isValidSTEnding(char ch) {
+		return contains(ch, VALID_ST_ENDING);
+	}
+
 	private String step3(String word) {
 		String R2String = getRegionSubstring(word, R2);
 
-		for (String suffix : step3_suffixes1) {
+		for (String suffix : STEP3_SUFFIXES1) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
 					R2String = removeEnding(R2String, suffix.length());
-					for (String precedingSuffix : step3_suffixes1_1) {
+					for (String precedingSuffix : STEP3_SUFFIXES1_1) {
 						if (R2String.endsWith(precedingSuffix)) {
 							if (word.length() > precedingSuffix.length() + 1) {
 								if (word.charAt(word.length() - precedingSuffix.length() - 1) != 'e') {
@@ -175,7 +154,7 @@ public class GermanSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step3_suffixes2) {
+		for (String suffix : STEP3_SUFFIXES2) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					if (word.length() > suffix.length() + 1) {
@@ -190,17 +169,17 @@ public class GermanSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step3_suffixes3) {
+		for (String suffix : STEP3_SUFFIXES3) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
 					String R1String = getRegionSubstring(word, R1);
-					for (String precedingSuffix : step3_suffixes3_1) {
+					for (String precedingSuffix : STEP3_SUFFIXES3_1) {
 						if (word.endsWith(precedingSuffix)) {
 							if (R1String.endsWith(precedingSuffix)) {
 								word = removeEnding(word, precedingSuffix.length());
 							}
-							break;
+							return word;
 						}
 					}
 				}
@@ -208,21 +187,21 @@ public class GermanSnowballStemmer extends Stemmer {
 			}
 		}
 
-		for (String suffix : step3_suffixes4) {
+		for (String suffix : STEP3_SUFFIXES4) {
 			if (word.endsWith(suffix)) {
 				if (R2String.endsWith(suffix)) {
 					word = removeEnding(word, suffix.length());
 					R2String = removeEnding(R2String, suffix.length());
-					for (String precedingSuffix : step3_suffixes4_1) {
+					for (String precedingSuffix : STEP3_SUFFIXES4_1) {
 						if (word.endsWith(precedingSuffix)) {
 							if (R2String.endsWith(precedingSuffix)) {
 								word = removeEnding(word, precedingSuffix.length());
 							}
-							break;
+							return word;
 						}
 					}
 				}
-				break;
+				return word;
 			}
 		}
 		return word;
@@ -246,15 +225,9 @@ public class GermanSnowballStemmer extends Stemmer {
 		}
 		return sb.toString();
 	}
-	
+
 	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		word = rewrite(word);
-		markRNumberRegions(word);
-		word = step1(word);
-		word = step2(word);
-		word = step3(word);
-		return finalize(word);
+	public Language getLanguage() {
+		return Language.GERMAN;
 	}
 }
