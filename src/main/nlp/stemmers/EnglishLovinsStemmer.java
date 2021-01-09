@@ -1,5 +1,6 @@
 package main.nlp.stemmers;
 
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,20 +12,16 @@ import java.util.regex.Pattern;
  * 
  * Source Date: January 6, 2021
  * 
- * @author Ethan
+ * @author Ethan Booker
  * @version 1.0
  */
 public class EnglishLovinsStemmer extends Stemmer {
-	private interface Rule {
-		public boolean test(String word);
-	}
-
 	private static class ContexualRule {
 		private String ending;
-		private Rule rule;
+		private Predicate<String> rule;
 		private boolean changed;
 
-		public ContexualRule(String ending, Rule rule) {
+		public ContexualRule(String ending, Predicate<String> rule) {
 			this.ending = ending;
 			this.rule = rule;
 			changed = false;
@@ -47,44 +44,52 @@ public class EnglishLovinsStemmer extends Stemmer {
 		}
 	}
 
-	private static final Rule A = (word) -> true;
-	private static final Rule B = (word) -> word.length() >= 3;
-	private static final Rule C = (word) -> word.length() >= 4;
-	private static final Rule D = (word) -> word.length() >= 5;
-	private static final Rule E = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^e]$") });
-	private static final Rule F = (word) -> word.length() >= 3
+	private static final Predicate<String> A = (word) -> true;
+	private static final Predicate<String> B = (word) -> word.length() >= 3;
+	private static final Predicate<String> C = (word) -> word.length() >= 4;
+	private static final Predicate<String> D = (word) -> word.length() >= 5;
+	private static final Predicate<String> E = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^e]$") });
+	private static final Predicate<String> F = (word) -> word.length() >= 3
 			&& isMatching(word, new Pattern[] { Pattern.compile(".*[^e]$") });
-	private static final Rule G = (word) -> word.length() >= 3
+	private static final Predicate<String> G = (word) -> word.length() >= 3
 			&& isMatching(word, new Pattern[] { Pattern.compile(".*f$") });
-	private static final Rule H = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*(t|ll)$") });
-	private static final Rule I = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^oe]$") });
-	private static final Rule J = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^ae]$") });
-	private static final Rule K = (word) -> word.length() >= 3
+	private static final Predicate<String> H = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*(t|ll)$") });
+	private static final Predicate<String> I = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*[^oe]$") });
+	private static final Predicate<String> J = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*[^ae]$") });
+	private static final Predicate<String> K = (word) -> word.length() >= 3
 			&& isMatching(word, new Pattern[] { Pattern.compile(".*(l|i|u.e)$") });
-	private static final Rule L = (word) -> isMatching(word, new Pattern[] { Pattern.compile("(.*[^uxs]$)|(.*os$)") });
-	private static final Rule M = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^acem]$") });
-	private static final Rule N = (word) -> word.length() >= 4
+	private static final Predicate<String> L = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile("(.*[^uxs]$)|(.*os$)") });
+	private static final Predicate<String> M = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*[^acem]$") });
+	private static final Predicate<String> N = (word) -> word.length() >= 4
 			|| (word.length() == 3 && isMatching(word, new Pattern[] { Pattern.compile("[^s].*$") }));
-	private static final Rule O = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[li]$") });
-	private static final Rule P = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^c]$") });
-	private static final Rule Q = (word) -> word.length() >= 3
+	private static final Predicate<String> O = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[li]$") });
+	private static final Predicate<String> P = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^c]$") });
+	private static final Predicate<String> Q = (word) -> word.length() >= 3
 			&& isMatching(word, new Pattern[] { Pattern.compile(".*[^ln]$") });
-	private static final Rule R = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[nr]$") });
-	private static final Rule S = (word) -> isMatching(word,
+	private static final Predicate<String> R = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[nr]$") });
+	private static final Predicate<String> S = (word) -> isMatching(word,
 			new Pattern[] { Pattern.compile(".*(dr|[^t]t)$"), Pattern.compile("^t$") });
-	private static final Rule T = (word) -> isMatching(word,
+	private static final Predicate<String> T = (word) -> isMatching(word,
 			new Pattern[] { Pattern.compile(".*(s|[^o]t)$"), Pattern.compile("^t$") });
-	private static final Rule U = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[lmnr]$") });
-	private static final Rule V = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*c$") });
-	private static final Rule W = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^su]$") });
-	private static final Rule X = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*(l|i|u.e)$") });
-	private static final Rule Y = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*in$") });
-	private static final Rule Z = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^f]$") });
-	private static final Rule AA = (word) -> isMatching(word,
+	private static final Predicate<String> U = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*[lmnr]$") });
+	private static final Predicate<String> V = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*c$") });
+	private static final Predicate<String> W = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*[^su]$") });
+	private static final Predicate<String> X = (word) -> isMatching(word,
+			new Pattern[] { Pattern.compile(".*(l|i|u.e)$") });
+	private static final Predicate<String> Y = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*in$") });
+	private static final Predicate<String> Z = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*[^f]$") });
+	private static final Predicate<String> AA = (word) -> isMatching(word,
 			new Pattern[] { Pattern.compile(".*(d|f|ph|th|l|er|or|es|t)$") });
-	private static final Rule BB = (word) -> word.length() >= 3
+	private static final Predicate<String> BB = (word) -> word.length() >= 3
 			&& isMatching(word, new Pattern[] { Pattern.compile(".*(?<!met|ryst)$") });
-	private static final Rule CC = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*l$") });
+	private static final Predicate<String> CC = (word) -> isMatching(word, new Pattern[] { Pattern.compile(".*l$") });
 
 	private static final ContexualRule[][] RULE_ASSOCIATIONS = {
 			{ new ContexualRule("alistically", B), new ContexualRule("arizability", A),
@@ -286,7 +291,7 @@ public class EnglishLovinsStemmer extends Stemmer {
 	public Language getLanguage() {
 		return Language.ENGLISH;
 	}
-	
+
 	private static boolean isMatching(String word, Pattern[] regexOptions) {
 		for (Pattern regexPattern : regexOptions) {
 			Matcher matcher = regexPattern.matcher(word);

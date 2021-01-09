@@ -15,9 +15,17 @@ package main.nlp.phonetics;
  * 
  * Need to modify code to not rely on toUpperCase changing every lowercase letters enclosed by ('', "") to uppercase
  */
+
+/**
+ * 
+ * @author Ethan Booker
+ *
+ */
 public class Metaphone extends Phonetizer {
 	public static final int DEFAULT_MAX_LENGTH = 4;
 	public static final int NO_LIMIT = Integer.MAX_VALUE;
+	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u' };
+
 	private int maxLength;
 
 	public Metaphone() {
@@ -29,15 +37,22 @@ public class Metaphone extends Phonetizer {
 		this.maxLength = maxLength;
 	}
 
-	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u' };
-
-	private static boolean isVowel(char ch) {
-		for (char vowel : VOWELS) {
-			if (ch == vowel) {
-				return true;
-			}
-		}
-		return false;
+	@Override
+	public String encode(String name) {
+		name = name.trim().toLowerCase();
+		name = dropDuplicateAdjacents(name);
+		name = removePrefix(name);
+		name = removeBAfterM(name);
+		name = transform1(name);
+		name = transform2(name);
+		name = transform3(name);
+		name = removeH(name);
+		name = transform4(name);
+		name = transform5(name);
+		name = transform6(name);
+		name = removeYNotBeforeVowel(name);
+		name = removeVowelsAfterFirstLetter(name);
+		return limitLength(name, maxLength).toUpperCase();
 	}
 
 	private String dropDuplicateAdjacents(String name) {
@@ -62,7 +77,7 @@ public class Metaphone extends Phonetizer {
 	}
 
 	/*
-	 *  delete b if after m
+	 * delete b if after m
 	 */
 	private String removeBAfterM(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
@@ -70,7 +85,7 @@ public class Metaphone extends Phonetizer {
 			char ch = name.charAt(i);
 			if (ch == 'm') {
 				if (name.startsWith("b", 1)) {
-					i++; 
+					i++;
 				}
 				sb.append(ch);
 			} else {
@@ -81,14 +96,7 @@ public class Metaphone extends Phonetizer {
 	}
 
 	/*
-	 * cia -> xia 
-	 * sch -> skh 
-	 * ch -> xh 
-	 * ci -> si 
-	 * ce -> se 
-	 * cy -> sy 
-	 * ck -> k 
-	 * c -> k
+	 * cia -> xia sch -> skh ch -> xh ci -> si ce -> se cy -> sy ck -> k c -> k
 	 */
 	private String transform1(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
@@ -118,10 +126,7 @@ public class Metaphone extends Phonetizer {
 	}
 
 	/*
-	 * dge -> jge 
-	 * dgy -> jgy 
-	 * dgi -> dgy 
-	 * d -> t
+	 * dge -> jge dgy -> jgy dgi -> dgy d -> t
 	 */
 	private String transform2(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
@@ -148,16 +153,11 @@ public class Metaphone extends Phonetizer {
 	/*
 	 * GH -> H if not ending and not followed by vowel
 	 * 
-	 * If ending 
-	 * gn -> n 
-	 * gned -> ned
+	 * If ending gn -> n gned -> ned
 	 * 
 	 * 
 	 * 
-	 * gi -> ji 
-	 * ge -> je 
-	 * gy -> jy 
-	 * g -> k
+	 * gi -> ji ge -> je gy -> jy g -> k
 	 */
 	private String transform3(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
@@ -173,7 +173,7 @@ public class Metaphone extends Phonetizer {
 					sb.append("ned");
 					break;
 				} else if (name.startsWith("h", oneAhead) && i != name.length() - 2 && i + 2 < name.length()
-						&& !isVowel(name.charAt(i + 2))) {
+						&& !isVowel(name.charAt(i + 2), VOWELS)) {
 					sb.append('h');
 					i++;
 				} else if (name.startsWith("i", oneAhead) || name.startsWith("e", oneAhead)
@@ -195,8 +195,8 @@ public class Metaphone extends Phonetizer {
 		for (int i = 0; i < name.length(); i++) {
 			char ch = name.charAt(i);
 			if (ch == 'h' && i > 0) {
-				boolean isVowelPrev = isVowel(name.charAt(i - 1));
-				if (isVowelPrev && (i == name.length() - 1 || !isVowel(name.charAt(i + 1)))) {
+				boolean isVowelPrev = isVowel(name.charAt(i - 1), VOWELS);
+				if (isVowelPrev && (i == name.length() - 1 || !isVowel(name.charAt(i + 1), VOWELS))) {
 					continue;
 				} else {
 					sb.append('h');
@@ -209,9 +209,7 @@ public class Metaphone extends Phonetizer {
 	}
 
 	/*
-	 * q -> k v, 
-	 * ph -> f 
-	 * z -> s
+	 * q -> k v, ph -> f z -> s
 	 */
 	private String transform4(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
@@ -233,13 +231,9 @@ public class Metaphone extends Phonetizer {
 		}
 		return sb.toString();
 	}
-	
+
 	/*
-	 * sh -> xh
-	 * sio, tio -> xio
-	 * sia, tia -> xia
-	 * th -> 0
-	 * tch -> ch
+	 * sh -> xh sio, tio -> xio sia, tia -> xia th -> 0 tch -> ch
 	 */
 	private String transform5(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
@@ -247,7 +241,8 @@ public class Metaphone extends Phonetizer {
 			char curr = name.charAt(i);
 			int oneAhead = i + 1;
 			if (curr == 's') {
-				if (name.startsWith("h", oneAhead) || name.startsWith("io", oneAhead) || name.startsWith("ia", oneAhead)) {
+				if (name.startsWith("h", oneAhead) || name.startsWith("io", oneAhead)
+						|| name.startsWith("ia", oneAhead)) {
 					sb.append('x');
 				} else {
 					sb.append('s');
@@ -264,7 +259,7 @@ public class Metaphone extends Phonetizer {
 				} else {
 					sb.append('t');
 				}
-			}  else {
+			} else {
 				sb.append(curr);
 			}
 		}
@@ -278,8 +273,7 @@ public class Metaphone extends Phonetizer {
 	 * 
 	 * tch -> ch
 	 * 
-	 * if at beginning, wh -> w
-	 * 		w delete if not followed by vowel
+	 * if at beginning, wh -> w w delete if not followed by vowel
 	 * 
 	 */
 	private String transform6(String name) {
@@ -297,7 +291,7 @@ public class Metaphone extends Phonetizer {
 					i++;
 				}
 
-				if (i + 1 < name.length() && isVowel(name.charAt(i + 1))) {
+				if (i + 1 < name.length() && isVowel(name.charAt(i + 1), VOWELS)) {
 					sb.append(curr);
 				}
 			} else {
@@ -306,13 +300,13 @@ public class Metaphone extends Phonetizer {
 		}
 		return sb.toString();
 	}
-	
+
 	private String removeYNotBeforeVowel(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
 		for (int i = 0; i < name.length(); i++) {
 			char curr = name.charAt(i);
 			if (curr == 'y') {
-				if (i + 1 < name.length() && !isVowel(name.charAt(i + 1))) {
+				if (i + 1 < name.length() && !isVowel(name.charAt(i + 1), VOWELS)) {
 					sb.append(curr);
 				}
 			} else {
@@ -323,40 +317,15 @@ public class Metaphone extends Phonetizer {
 	}
 
 	// remove vowels after first letter
-	private String removeVowelsAfterFirst(String name) {
+	private String removeVowelsAfterFirstLetter(String name) {
 		StringBuilder sb = new StringBuilder(name.length());
 		sb.append(name.charAt(0));
 		for (int i = 1; i < name.length(); i++) {
 			char curr = name.charAt(i);
-			if (!isVowel(curr)) {
+			if (!isVowel(curr, VOWELS)) {
 				sb.append(curr);
 			}
 		}
 		return sb.toString();
-	}
-
-	private String limitLength(String name) {
-		if (maxLength > name.length()) {
-			return name;
-		}
-		return name.substring(0, maxLength);
-	}
-
-	@Override
-	public String encode(String name) {
-		name = name.trim().toLowerCase();
-		name = dropDuplicateAdjacents(name);
-		name = removePrefix(name);
-		name = removeBAfterM(name);
-		name = transform1(name);
-		name = transform2(name);
-		name = transform3(name);
-		name = removeH(name);
-		name = transform4(name);
-		name = transform5(name);
-		name = transform6(name);
-		name = removeYNotBeforeVowel(name);
-		name = removeVowelsAfterFirst(name);
-		return limitLength(name).toUpperCase(); 
 	}
 }

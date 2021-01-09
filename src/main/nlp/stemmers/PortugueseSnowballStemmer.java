@@ -8,7 +8,7 @@ package main.nlp.stemmers;
  * 
  * Source Date: January 6, 2021
  * 
- * @author Ethan
+ * @author Ethan Booker
  * @version 1.0
  */
 public class PortugueseSnowballStemmer extends Stemmer {

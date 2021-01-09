@@ -8,11 +8,22 @@ package main.nlp.stemmers;
  * 
  * Source Date: January 6, 2021
  * 
- * @author Ethan
+ * @author Ethan Booker
  * @version 1.0
  */
 public class UEAStemmer extends Stemmer {
 	private static final String[] IGNORE_WORDS = { "is", "as", "this", "has", "was", "during" };
+
+	@Override
+	public String stem(String word) {
+		word = normalize(word);
+		if (isIgnoreWord(word)) {
+			return word;
+		}
+		word = handleContractions(word);
+		word = oneFullPassStem(word);
+		return word;
+	}
 
 	private boolean isIgnoreWord(String word) {
 		for (String ignoreWord : IGNORE_WORDS) {
@@ -23,11 +34,6 @@ public class UEAStemmer extends Stemmer {
 		return false;
 	}
 
-	/*
-	 * Will handle multiple contractions in one word
-	 * 
-	 * Even though there really isn't a case for this, it handles it just in case
-	 */
 	private String handleContractions(String word) {
 		StringBuilder sb = new StringBuilder(word.length());
 		char prev = EMPTY_CH;
@@ -282,17 +288,6 @@ public class UEAStemmer extends Stemmer {
 			stemmedWord = removeEnding(stemmedWord, 1);
 		}
 		return stemmedWord;
-	}
-
-	@Override
-	public String stem(String word) {
-		word = normalize(word);
-		if (isIgnoreWord(word)) {
-			return word;
-		}
-		word = handleContractions(word);
-		word = oneFullPassStem(word);
-		return word;
 	}
 
 	@Override

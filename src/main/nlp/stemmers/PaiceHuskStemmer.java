@@ -13,7 +13,7 @@ import java.util.Map;
  * 
  * Source Date: January 6, 2021
  * 
- * @author Ethan
+ * @author Ethan Booker
  * @version 1.0
  * @apiNote Still looking for a comprehensive test file
  */

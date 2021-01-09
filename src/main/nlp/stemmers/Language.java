@@ -7,7 +7,7 @@ package main.nlp.stemmers;
  * 
  * Source: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
  * 
- * @author Ethan
+ * @author Ethan Booker
  * @version 1.0
  */
 public enum Language {

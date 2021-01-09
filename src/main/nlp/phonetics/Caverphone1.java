@@ -1,7 +1,15 @@
 package main.nlp.phonetics;
 
-/*
- * Unfinished
+/**
+ * Caverphone 1 for standard English Names
+ * 
+ * Source: https://en.wikipedia.org/wiki/Soundex
+ * 
+ * Source Date: January 09, 2021
+ * 
+ * @author Ethan Booker
+ * @version 1.0
+ * @apiNote UNFINISHED
  */
 public class Caverphone1 extends Phonetizer {
 	private static final int MAX_LENGTH = 6;
@@ -11,53 +19,36 @@ public class Caverphone1 extends Phonetizer {
 	private static final String[][] PREFIXES_AND_REPLACEMENTS = { { "cough", "cou2f" }, { "rough", "rou2f" },
 			{ "tough", "tou2f" }, { "enough", "enou2f" }, { "gn", "2n" } };
 	private static final String[][] SUFFIXES_AND_REPLACEMENTS = { { "mb", "m2" } };
-	
-	private static final char[] VOWELS = {'a', 'e', 'i', 'o', 'u'};
-	private static final char[] SPECIAL_VOWELS = {'æ', 'ā', 'ø'};
-	private static final char[] GROUP_LETTERS = {'s', 't', 'p', 'k', 'f', 'm', 'n'};
+
+	private static final char[] VOWELS = { 'a', 'e', 'i', 'o', 'u' };
+	private static final char[] SPECIAL_VOWELS = { 'æ', 'ā', 'ø' };
+	private static final char[] GROUP_LETTERS = { 's', 't', 'p', 'k', 'f', 'm', 'n' };
 	private boolean includeSpecialVowels;
-	
+
 	public Caverphone1() {
 		this(false);
 	}
-	
+
 	public Caverphone1(boolean specialVowels) {
 		includeSpecialVowels = specialVowels;
 	}
-	
-	private boolean isIn(char[] ary, char ch) {
-		for (char letter : ary) {
-			if (ch == letter) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
+
 	private boolean isSpecialVowel(char ch) {
-		return isIn(SPECIAL_VOWELS, ch);
+		return contains(ch, SPECIAL_VOWELS);
 	}
-	
+
 	private boolean isVowel(char ch) {
-		if (isIn(VOWELS, ch)) {
-			return true;
-		}
-		
-		if (isSpecialVowelsIncluded()) {
-			return isSpecialVowel(ch);
-		}
-		
-		return false;
+		return contains(ch, VOWELS) || (isSpecialVowelsIncluded() && contains(ch, SPECIAL_VOWELS));
 	}
-	
+
 	private boolean isGroupLetter(char ch) {
-		return isIn(GROUP_LETTERS, ch);
+		return contains(ch, GROUP_LETTERS);
 	}
-	
+
 	public boolean isSpecialVowelsIncluded() {
 		return includeSpecialVowels;
 	}
-	
+
 	public void setSpecialVowels(boolean shouldInclude) {
 		includeSpecialVowels = shouldInclude;
 	}
@@ -127,6 +118,6 @@ public class Caverphone1 extends Phonetizer {
 	public static void main(String[] args) {
 		Caverphone1 c = new Caverphone1();
 		System.out.println(c.encode("T23MPS3N"));
-		//T23MPS3N
+		// T23MPS3N
 	}
 }

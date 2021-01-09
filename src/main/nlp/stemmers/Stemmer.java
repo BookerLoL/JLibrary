@@ -4,7 +4,7 @@ package main.nlp.stemmers;
  * 
  * Abstract class that all stemmers will extend.
  * 
- * @author Ethan
+ * @author Ethan Booker
  * @version 1.0
  */
 public abstract class Stemmer {
@@ -64,7 +64,6 @@ public abstract class Stemmer {
 		return region2;
 	}
 
-	
 	protected static boolean isEmpty(String str) {
 		return str == null || str == EMPTY;
 	}
@@ -72,7 +71,7 @@ public abstract class Stemmer {
 	/**
 	 * Checks if one of the optional characters matches the given character.
 	 * 
-	 * @param ch expected character to find
+	 * @param ch    expected character to find
 	 * @param given characters to look through
 	 * @return result if found expected char in the options characters
 	 */
@@ -88,19 +87,19 @@ public abstract class Stemmer {
 	/**
 	 * Simply a wrapper of contains to make the intention more obvious.
 	 * 
-	 * @param ch expected character to find.
+	 * @param ch    expected character to find.
 	 * @param given vowel characters to look through
-	 * @return result if found expected char in the vowels. 
+	 * @return result if found expected char in the vowels.
 	 */
 	protected static boolean isVowel(char ch, char[] vowels) {
 		return contains(ch, vowels);
 	}
-	
+
 	/**
-	 * Anything that is not a vowel is considered a consonant in this case.
-	 * Simply the negation of {@code isVowel}
+	 * Anything that is not a vowel is considered a consonant in this case. Simply
+	 * the negation of {@code isVowel}
 	 * 
-	 * @param ch expected character to not find
+	 * @param ch     expected character to not find
 	 * @param vowels given vowel characters to look through
 	 * @return result if did not find expected char in the vowels.
 	 */
@@ -109,9 +108,9 @@ public abstract class Stemmer {
 	}
 
 	/**
-	 * Removes the number of characters from the end of the word.
-	 * Removing 0 or less chars results in returning the given word.
-	 * Removing more chars than the word has will return {@code EMPTY} word.
+	 * Removes the number of characters from the end of the word. Removing 0 or less
+	 * chars results in returning the given word. Removing more chars than the word
+	 * has will return {@code EMPTY} word.
 	 * 
 	 * @param word
 	 * @param numEndingChars number of characters to remove from the end.
@@ -128,8 +127,8 @@ public abstract class Stemmer {
 	}
 
 	/**
-	 * A helper method for safe substring-ing a word.
-	 * If the region index is {@code < 0 or >= word.lenght()} then returns {@code EMPTY} word.
+	 * A helper method for safe substring-ing a word. If the region index is
+	 * {@code < 0 or >= word.lenght()} then returns {@code EMPTY} word.
 	 * 
 	 * @param word
 	 * @param regionIndex starting point of the region of word to keep

@@ -1,13 +1,16 @@
 package main.nlp.phonetics;
 
-/*
- * New York State Identification and Intelligence Algorithm, Tafts original algorithm
- * 
- * For standard English
- * 
- * http://www.dropby.com/NYSIIS.html
+/**
+ * New York State Identification and Intelligence Algorithm, Tafts original
+ * algorithm for standard English names.
  * 
  * 
+ * Source: http://www.dropby.com/NYSIIS.html
+ * 
+ * Source Date: January 09, 2021
+ * 
+ * @author Ethan Booker
+ * @version 1.0
  */
 public class ModifiedNysiis extends Phonetizer {
 	public static final int STANDARD_LENGTH = 6;
@@ -35,13 +38,23 @@ public class ModifiedNysiis extends Phonetizer {
 		maxLength = useStandardLength ? STANDARD_LENGTH : NO_LIMIT_LENGTH;
 	}
 
-	private boolean isVowel(char ch) {
-		for (char vowel : VOWELS) {
-			if (ch == vowel) {
-				return true;
-			}
-		}
-		return false;
+	@Override
+	public String encode(String name) {
+		name = name.trim().toUpperCase();
+		char firstLetter = getFirstLetter(name);
+		name = removeAllTraillingSandZ(name);
+		name = replacePrefix(name);
+		name = replaceSuffix(name);
+		name = replaceRepeatSuffixes(name);
+		name = replaceEV(name);
+		name = removeWAfterVowelAndCollapseVowelsToA(name);
+		name = transform1(name);
+		name = transform2(name);
+		name = removeTerminalAY(name);
+		name = removeTrailingVowels(name);
+		name = removeAdjacentDuplicates(name);
+		name = addFirstLetter(name, firstLetter);
+		return limitLength(name, maxLength);
 	}
 
 	private String removeAllTraillingSandZ(String name) {
@@ -112,7 +125,7 @@ public class ModifiedNysiis extends Phonetizer {
 		char ch;
 		for (int i = 0; i < name.length(); i++) {
 			ch = name.charAt(i);
-			if (isVowel(ch)) {
+			if (isVowel(ch, VOWELS)) {
 				if (prev != 'A') {
 					sb.append('A');
 				}
@@ -142,8 +155,8 @@ public class ModifiedNysiis extends Phonetizer {
 			} else if (ch == 'P' && name.startsWith("H", oneAhead)) {
 				sb.append('F');
 				i++;
-			} else if (ch == 'H' && i != 0
-					&& (isVowel(name.charAt(i - 1)) || (i + 1 < name.length() && isVowel(name.charAt(i + 1))))) {
+			} else if (ch == 'H' && i != 0 && (isVowel(name.charAt(i - 1), VOWELS)
+					|| (i + 1 < name.length() && isVowel(name.charAt(i + 1), VOWELS)))) {
 				continue;
 			} else if (ch == 'K') {
 				if (name.startsWith("N", oneAhead)) {
@@ -217,12 +230,12 @@ public class ModifiedNysiis extends Phonetizer {
 	}
 
 	private char getFirstLetter(String name) {
-		return isVowel(name.charAt(0)) ? name.charAt(0) : EMPTY_CHAR;
+		return isVowel(name.charAt(0), VOWELS) ? name.charAt(0) : EMPTY_CHAR;
 	}
 
 	private String removeTrailingVowels(String name) {
 		int index = name.length() - 1;
-		while (index > 0 && isVowel(name.charAt(index))) {
+		while (index > 0 && isVowel(name.charAt(index), VOWELS)) {
 			index--;
 		}
 		index++;
@@ -241,31 +254,5 @@ public class ModifiedNysiis extends Phonetizer {
 			}
 		}
 		return sb.toString();
-	}
-
-	private String limitLength(String name) {
-		if (name.length() <= maxLength) {
-			return name;
-		}
-		return name.substring(0, maxLength);
-	}
-
-	@Override
-	public String encode(String name) {
-		name = name.trim().toUpperCase();
-		char firstLetter = getFirstLetter(name);
-		name = removeAllTraillingSandZ(name);
-		name = replacePrefix(name);
-		name = replaceSuffix(name);
-		name = replaceRepeatSuffixes(name);
-		name = replaceEV(name);
-		name = removeWAfterVowelAndCollapseVowelsToA(name);
-		name = transform1(name);
-		name = transform2(name);
-		name = removeTerminalAY(name);
-		name = removeTrailingVowels(name);
-		name = removeAdjacentDuplicates(name);
-		name = addFirstLetter(name, firstLetter);
-		return limitLength(name);
 	}
 }

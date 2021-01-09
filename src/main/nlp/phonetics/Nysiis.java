@@ -1,14 +1,21 @@
 package main.nlp.phonetics;
 
-/*
- * New York State Identification and Intelligence Algorithm  1970
+/**
+ * New York State Identification and Intelligence Algorithm 1970 algorithm for
+ * standard English names.
  * 
- * For standard English
  * 
- * https://caversham.otago.ac.nz/files/working/ctp060902.pdf
+ * Source: https://caversham.otago.ac.nz/files/working/ctp060902.pdf
+ * 
+ * Source:
  * https://en.wikipedia.org/wiki/New_York_State_Identification_and_Intelligence_System#cite_note-taft-2
- * http://www.dropby.com/NYSIIS.html
  * 
+ * Source: http://www.dropby.com/NYSIIS.html
+ * 
+ * Source Date: January 09, 2021
+ * 
+ * @author Ethan Booker
+ * @version 1.0
  */
 public class Nysiis extends Phonetizer {
 	public static final int STANDARD_LENGTH = 6;
@@ -31,15 +38,6 @@ public class Nysiis extends Phonetizer {
 
 	public Nysiis(boolean useStandardLength) {
 		maxLength = useStandardLength ? STANDARD_LENGTH : NO_LIMIT_LENGTH;
-	}
-
-	private boolean isVowel(char ch) {
-		for (char vowel : VOWELS) {
-			if (ch == vowel) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private String replacePrefix(String name) {
@@ -69,7 +67,7 @@ public class Nysiis extends Phonetizer {
 		for (int i = 1; i < name.length(); i++) {
 			char curr = name.charAt(i);
 			if (curr != prev) { // avoid current char with last char added
-				if (isVowel(curr)) {
+				if (isVowel(curr, VOWELS)) {
 					if (curr == 'E' && name.startsWith("V", i + 1)) {
 						sb.append("AF");
 						i++; // skip V
@@ -90,10 +88,10 @@ public class Nysiis extends Phonetizer {
 				} else if (curr == 'S' && name.startsWith("CH", i + 1)) {
 					sb.append("SSS");
 					i += 2; // skip CH
-				} else if (curr == 'W' && i != 1 && isVowel(prev)) {
+				} else if (curr == 'W' && i != 1 && isVowel(prev, VOWELS)) {
 					sb.append(prev);
-				} else if (curr == 'H' && i != 1
-						&& (!isVowel(prev) || (i + 1 < name.length() && !isVowel(name.charAt(i + 1))))) {
+				} else if (curr == 'H' && i != 1 && (!isVowel(prev, VOWELS)
+						|| (i + 1 < name.length() && !isVowel(name.charAt(i + 1), VOWELS)))) {
 					sb.append(prev);
 				} else if (curr == 'Z') {
 					sb.append('S');
@@ -135,19 +133,12 @@ public class Nysiis extends Phonetizer {
 		return sb.toString();
 	}
 
-	private String limitLength(String name) {
-		if (name.length() <= maxLength) {
-			return name;
-		}
-		return name.substring(0, maxLength);
-	}
-
 	@Override
 	public String encode(String name) {
 		name = name.trim().toUpperCase();
 		name = replacePrefix(name);
 		name = replaceSuffix(name);
 		name = transform(name);
-		return limitLength(name);
+		return limitLength(name, maxLength);
 	}
 }
